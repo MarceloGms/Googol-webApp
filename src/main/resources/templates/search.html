@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Googol</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+			}
+
+			.container {
+				text-align: center;
+				max-width: 600px;
+				width: 100%;
+				padding: 0 20px;
+			}
+
+			.title {
+				font-size: 7rem;
+				color: #333;
+				margin: 0;
+			}
+
+			.input-box {
+				background-color: #f2f2f2;
+				width: 100%;
+				border-color: #f2f2f2;
+				border-radius: 2rem;
+				box-sizing: border-box;
+				outline: none;
+				margin-top: 20px;
+				position: relative;
+				box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+			}
+
+			.input {
+				background-color: transparent;
+				padding: 12px;
+				width: 86%;
+				box-sizing: border-box;
+				border: none;
+				outline: none;
+				font-size: medium;
+			}
+
+			.search-button {
+				background-color: transparent;
+				border: none;
+				position: absolute;
+				top: 50%;
+				left: 10px;
+				transform: translateY(-48%);
+				cursor: pointer;
+			}
+
+			.search-button img {
+				width: 20px;
+				height: auto;
+			}
+
+			.adm-button {
+				background-color: transparent;
+				border: none;
+				position: absolute;
+				top: 50%;
+				right: 10px;
+				transform: translateY(-48%);
+				cursor: pointer;
+			}
+
+			.adm-button img {
+				width: 20px;
+				height: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1 class="title">Googol</h1>
+			<div class="input-box">
+				<button class="search-button" type="button">
+					<img src="/search.png" alt="search icon" />
+				</button>
+				<button class="adm-button" type="button">
+					<img src="/setting.png" alt="adm" />
+				</button>
+				<input type="text" name="input" class="input" placeholder="Search..." />
+			</div>
+		</div>
+		<script>
+			const searchButton = document.querySelector(".search-button");
+			const searchIcon = searchButton.querySelector("img");
+			const inp = document.querySelector(".input");
+
+			searchButton.addEventListener("click", function () {
+				if (searchIcon.src.endsWith("/search.png")) {
+					searchIcon.src = "/url.png";
+					inp.placeholder = "Enter URL...";
+				} else {
+					searchIcon.src = "/search.png";
+					inp.placeholder = "Search...";
+				}
+			});
+		</script>
+	</body>
+</html>
