@@ -58,6 +58,7 @@
 				left: 10px;
 				transform: translateY(-48%);
 				cursor: pointer;
+				transition: transform 0.3s ease;
 			}
 
 			.search-button img {
@@ -78,6 +79,10 @@
 			.adm-button img {
 				width: 20px;
 				height: auto;
+			}
+
+			.search-button.clicked {
+				transform: translateY(-50%) scale(0.8);
 			}
 		</style>
 	</head>
@@ -107,6 +112,7 @@
 					searchIcon.src = "/search.png";
 					inp.placeholder = "Search...";
 				}
+				searchButton.classList.toggle("clicked");
 			});
 		</script>
 	</body>
