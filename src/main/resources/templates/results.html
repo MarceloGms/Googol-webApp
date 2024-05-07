@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Search Results</title>
+	</head>
+	<body>
+		<h1>Search Results for <span th:text="${query}"></span></h1>
+		<div th:each="result : ${group}">
+			<div>
+				<h3><a th:href="${result.url}" th:text="${result.title}"></a></h3>
+				<p th:text="${result.citation}"></p>
+			</div>
+		</div>
+	</body>
+</html>
