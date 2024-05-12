@@ -1,11 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Document</title>
+		<title>Admin</title>
+		<link rel="icon" href="/img/favicon.ico" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+			crossorigin="anonymous"
+		/>
+		<style>
+			.center-container {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+			}
+			.narrow-container {
+				max-width: 800px;
+				margin: 0 auto;
+			}
+			.header {
+				position: absolute;
+				top: 30px;
+				left: 30px;
+				user-select: none;
+			}
+		</style>
 	</head>
 	<body>
-		admin page
+		<div class="center-container">
+			<div class="container narrow-container">
+				<div class="row">
+					<div class="col-md-6">
+						<!-- active barrels -->
+						<table class="table">
+							<thead>
+								<tr>
+									<td><b>Active Barrels</b></td>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="id, i : ${barrels}" th:if="${i.index % 2 == 0}">
+									<td th:text="${id}"></td>
+									<!-- Check if next barrel exists -->
+									<td
+										th:if="${barrels.size() > i.index + 1}"
+										th:text="${barrels[i.index + 1]}"
+									></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="col-md-6">
+						<!-- top 10 -->
+						<table class="table">
+							<thead>
+								<tr>
+									<td><b>Top 10 Searches</b></td>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="search, index : ${searches}">
+									<td th:text="${index.count}"></td>
+									<td th:text="${search}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<h1 class="header">Admin page</h1>
 	</body>
 </html>

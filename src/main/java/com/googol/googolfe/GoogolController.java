@@ -1,5 +1,6 @@
 package com.googol.googolfe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -10,25 +11,21 @@ import org.springframework.ui.Model;
 @Controller
 public class GoogolController {
 
-   // for testing only
-   private List<Result> searchResults;
-
-   public GoogolController(List<Result> searchResults) {
-      this.searchResults = SearchResultsGenerator.generateExampleSearchResults();
-   }
-  
    @GetMapping("/")
-   public String showLandingPage() {
-      return "redirect:/search";
+   public String showGoogolPage() {
+      return "googol";
    }
 
    @GetMapping("/search")
-   public String showSearchPage() {
-      return "search";
-   }
+   public String showSearchPage(Model model, @RequestParam() String query, @RequestParam(defaultValue = "0") String page) {
+      List<Result> searchResults = new ArrayList<>();
 
-   @GetMapping("/search/results")
-   public String showResultsPage(Model model, @RequestParam() String query, @RequestParam(defaultValue = "0") String page) {
+      for (int i = 0; i < 30; i++) {
+         String title = "Result " + (i + 1);
+         String url = "http://example.com/result" + (i + 1);
+         String citation = "Citation for Result " + (i + 1);
+         searchResults.add(new Result(title, url, citation));
+      }
       int pageSize = 10;
       int totalPages = (int) Math.ceil((double) searchResults.size() / pageSize);
 
@@ -41,17 +38,34 @@ public class GoogolController {
       model.addAttribute("page", page);
       model.addAttribute("totalPages", totalPages);
 
-      return "results";
+      return "search";
    }
 
-   @GetMapping("/search/sub-urls")
-   public String showSubUrlsPage(Model model, @RequestParam() String url) {
+   @GetMapping("/urls")
+   public String showSubUrlsPage(Model model, @RequestParam() String url, @RequestParam(defaultValue = "0") String page) {
+      List<String> urls = new ArrayList<>();
+      for (int i = 1; i <= 30; i++) {
+         urls.add("URL" + i);
+      }
+      int pageSize = 10;
+      int totalPages = (int) Math.ceil((double) urls.size() / pageSize);
+
+      int startIndex = Integer.parseInt(page) * pageSize;
+      int endIndex = Math.min(startIndex + pageSize, urls.size());
+      List<String> subUrls = urls.subList(startIndex, endIndex);
       model.addAttribute("url", url);
+      model.addAttribute("urls", subUrls);
       return "urls";
    }
 
    @GetMapping("/admin")
-   public String showAdminPage() {
+   public String showAdminPage(Model model) {
+      List<String> brls = new ArrayList<>();
+      for (int i = 1; i <= 7; i++) {
+         brls.add("Barrel " + i);
+      }
+      model.addAttribute("barrels", brls);
+      model.addAttribute("searches", new String[] {"Search 1", "Search 2", "Search 3", "Search 4", "Search 5", "Search 6", "Search 7", "Search 8", "Search 9", "Search 10"});
       return "admin";
    }
 }

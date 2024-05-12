@@ -3,11 +3,18 @@ document.addEventListener("DOMContentLoaded", function () {
 	const searchButton = document.querySelector(".search-button");
 	const searchIcon = searchButton.querySelector("img");
 	const inp = document.querySelector(".input");
+	const idx = document.querySelector(".idx");
 	let state = { isSearch: true };
 
 	admButton.addEventListener("click", function () {
 		window.location.href = "/admin";
 	});
+
+	function isValidURL(url) {
+		var regex = /^(ftp|http|https):\/\/[^ "]+$/;
+
+		return regex.test(url);
+	}
 
 	searchButton.addEventListener("click", function () {
 		if (searchIcon.src.endsWith("/img/search.png")) {
@@ -26,9 +33,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		const inputValue = inp.value.trim();
 		if (inputValue !== "") {
 			if (state.isSearch) {
-				window.location.href = "/search/results?query=" + inputValue;
+				window.location.href = "/search?query=" + inputValue;
 			} else {
-				window.location.href = "/search/sub-urls?url=" + inputValue;
+				if (!isValidURL(inputValue)) {
+					alert("Invalid URL");
+				} else window.location.href = "/urls?url=" + inputValue;
 			}
 		}
 	}
@@ -36,6 +45,20 @@ document.addEventListener("DOMContentLoaded", function () {
 	inp.addEventListener("keypress", function (event) {
 		if (event.key === "Enter") {
 			handleSearch();
+		}
+	});
+
+	idx.addEventListener("keypress", function () {
+		if (event.key === "Enter") {
+			const idxValue = idx.value.trim();
+			if (!isValidURL(idxValue)) {
+				alert("Invalid URL");
+				return;
+			}
+			if (idxValue !== "") {
+				// send the url to the server
+				alert("URL sent to the server.");
+			}
 		}
 	});
 });
