@@ -10,15 +10,25 @@
 			integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
 			crossorigin="anonymous"
 		/>
+		<link rel="stylesheet" href="/css/results.css" />
 	</head>
 	<body>
-		<h1>Sub URLS for <span th:text="${url}"></span></h1>
-		<div class="container">
-			<div th:each="item : ${urls}">
+		<div class="container-fluid" id="container-head">
+			<h1>Sub URLS for <span th:text="${url}"></span></h1>
+		</div>
+		<div class="container" id="results-container">
+			<div th:each="item : ${urls}" class="resultItem" style="display: none">
 				<div>
 					<h3><a th:href="${item}" th:text="${item}"></a></h3>
 				</div>
 			</div>
 		</div>
+		<div class="pagination">
+			<button id="prevPage">Previous</button>
+			<span id="currentPage">Page 1</span>
+			<button id="nextPage">Next</button>
+		</div>
+
+		<script src="/js/search.js"></script>
 	</body>
 </html>

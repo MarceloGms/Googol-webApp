@@ -26,17 +26,10 @@ public class GoogolController {
          String citation = "Citation for Result " + (i + 1);
          searchResults.add(new Result(title, url, citation));
       }
-      int pageSize = 10;
-      int totalPages = (int) Math.ceil((double) searchResults.size() / pageSize);
 
-      int startIndex = Integer.parseInt(page) * pageSize;
-      int endIndex = Math.min(startIndex + pageSize, searchResults.size());
-      List<Result> resultsForPage = searchResults.subList(startIndex, endIndex);
-
-      model.addAttribute("group", resultsForPage);
+      model.addAttribute("group", searchResults);
       model.addAttribute("query", query);
       model.addAttribute("page", page);
-      model.addAttribute("totalPages", totalPages);
 
       return "search";
    }
@@ -47,14 +40,8 @@ public class GoogolController {
       for (int i = 1; i <= 30; i++) {
          urls.add("URL" + i);
       }
-      int pageSize = 10;
-      int totalPages = (int) Math.ceil((double) urls.size() / pageSize);
-
-      int startIndex = Integer.parseInt(page) * pageSize;
-      int endIndex = Math.min(startIndex + pageSize, urls.size());
-      List<String> subUrls = urls.subList(startIndex, endIndex);
       model.addAttribute("url", url);
-      model.addAttribute("urls", subUrls);
+      model.addAttribute("urls", urls);
       return "urls";
    }
 
