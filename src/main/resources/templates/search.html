@@ -13,8 +13,10 @@
 	</head>
 	<link rel="stylesheet" href="/css/results.css" />
 	<body>
-		<div class="container-fluid" id="container-head">
-			<h1>Search Results for <span th:text="${query}"></span></h1>
+		<div class="container-fluid">
+			<h1 class="header">
+				Search Results for <span th:text="${query}"></span>
+			</h1>
 		</div>
 		<div class="container" id="results-container">
 			<div th:each="result : ${group}" class="resultItem" style="display: none">

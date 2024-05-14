@@ -1,5 +1,8 @@
 package com.googol.googolfe;
 
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +13,8 @@ import org.springframework.ui.Model;
 
 @Controller
 public class GoogolController {
+
+   private IGatewayCli gw;
 
    @GetMapping("/")
    public String showGoogolPage() {
@@ -55,4 +60,16 @@ public class GoogolController {
       model.addAttribute("searches", new String[] {"Search 1", "Search 2", "Search 3", "Search 4", "Search 5", "Search 6", "Search 7", "Search 8", "Search 9", "Search 10"});
       return "admin";
    }
+
+   /**
+   * Connects to the RMI gateway by looking up the server's remote object.
+   * If connection fails, it handles the error and exits the program.
+   */
+  private void connectToGateway() {
+    try {
+        gw = (IGatewayCli) Naming.lookup("rmi://" + SERVER_IP_ADDRESS + ":" + SERVER_PORT + "/gw");
+    } catch (RemoteException | NotBoundException | MalformedURLException e) {
+        handleErrorAndExit("Error connecting to the Gateway.");
+    }
+  }
 }

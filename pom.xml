@@ -62,6 +62,14 @@
 				<artifactId>webjars-locator-core</artifactId>
 				<version>0.58</version>
 		</dependency>
+
+		<!-- meta 1 -->
+		<dependency>
+			<groupId>com.googol</groupId>
+			<artifactId>googol-be</artifactId>
+			<version>1.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -13,8 +13,8 @@
 		<link rel="stylesheet" href="/css/results.css" />
 	</head>
 	<body>
-		<div class="container-fluid" id="container-head">
-			<h1>Sub URLS for <span th:text="${url}"></span></h1>
+		<div class="container-fluid">
+			<h1 class="header">Sub URLS for <span th:text="${url}"></span></h1>
 		</div>
 		<div class="container" id="results-container">
 			<div th:each="item : ${urls}" class="resultItem" style="display: none">
