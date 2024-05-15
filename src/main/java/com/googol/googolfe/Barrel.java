@@ -217,7 +217,7 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
                     break;
                 }
             }
-            string_links += link + "\n*";
+            string_links += link + "\n<>";
         }
         return string_links;
     }

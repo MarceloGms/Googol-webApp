@@ -78,9 +78,27 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
              System.out.println("No results found.\n");
              model.addAttribute("group", "No results found.");
            } else {
-            // TODO: meter a string result num array de objetos Result
+               String[] parts;
+               String[] new_parts = new String[3];
+               String[] results = result.split("<>");
+               if (results.length != 0){
+                  Result[] res = new Result[results.length];
+                  for (int i = 0; i < results.length; i++) {
+                     parts = results[i].split("\n");
+                     if (parts.length == 2){
+                        new_parts[0] = parts[0];
+                        new_parts[1] = "";
+                        new_parts[2] = parts[1];
+                     }else{
+                        new_parts[0] = parts[0];
+                        new_parts[1] = parts[1];
+                        new_parts[2] = parts[2];
+                     }
+                     res[i] = new Result(new_parts[0], new_parts[1], new_parts[2]);
+                  }
             
-            model.addAttribute("group", result);
+                  model.addAttribute("group", res);
+               }
            }
          } else {
            System.out.println("No results found.\n");
