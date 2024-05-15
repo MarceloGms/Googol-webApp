@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,9 +22,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 @Controller
 public class GoogolController extends UnicastRemoteObject implements IClient {
+
+   private static final Logger logger = Logger.getLogger(Gateway.class.getName());
 
    /**
    * The IP address of the gateway RMI server.
@@ -37,6 +44,8 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
 
    GoogolController() throws RemoteException{
       loadConfig();
+      initializeLogger();
+      logger.info("Googol Controller started.");
    }
 
    @GetMapping("/")
@@ -51,13 +60,13 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error connecting to the Gateway.");
       }
       String url = requestBody.getUrl();
-      System.out.println("Received URL: " + url);
+      logger.info("Received URL: {}" + url);
       try {
          gw.subscribe(this);
          gw.send(url, this);
          gw.unsubscribe(this);
       } catch (RemoteException e) {
-         System.out.println("Error occurred while sending URL to the Gateway.");
+         logger.warning("Error occurred while sending URL to the Gateway.");
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while sending URL to the Gateway.");
       }
 
@@ -74,34 +83,56 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       try {
          result = gw.search(query);
          if (result != null) {
-           if (result.equals("")) {
-             System.out.println("No results found.\n");
-             model.addAttribute("group", "No results found.");
-           } else {
-            // TODO: meter a string result num array de objetos Result
-            
-            model.addAttribute("group", result);
-           }
+         if (result.equals("")) {
+            logger.warning("No results found.");
+            model.addAttribute("group", "No results found.");
          } else {
-           System.out.println("No results found.\n");
+            // TODO: meter a string result num array de objetos Result
+
+            model.addAttribute("group", result);
+         }
+         } else {
+            logger.warning("No results found.");
             model.addAttribute("group", "No results found.");
          }
-       } catch (RemoteException e) {
-         System.out.println("Error occurred during search.\n");
+      } catch (RemoteException e) {
+         logger.warning("Error occurred during search.");
          model.addAttribute("group", "Error occurred during search.");
-       }
-       model.addAttribute("query", query);
-       return "search";
+      }
+      model.addAttribute("query", query);
+      return "search";
    }
 
    @GetMapping("/urls")
-   public String showSubUrlsPage(Model model, @RequestParam() String url, @RequestParam(defaultValue = "0") String page) {
-      List<String> urls = new ArrayList<>();
-      for (int i = 1; i <= 30; i++) {
-         urls.add("URL" + i);
+   public String showSubUrlsPage(Model model, @RequestParam() String url) {
+      IGatewayCli gw = connectToGateway();
+      if (gw == null) {
+         return "error";
       }
-      model.addAttribute("url", url);
-      model.addAttribute("urls", urls);
+      String result = null;
+      try {
+         result = gw.findSubLinks(url);
+         if (result != null) {
+         if (result.equals("")) {
+            logger.warning("No results found.");
+            model.addAttribute("urls", "No results found.");
+         } else if (result.equals("Invalid URL.")) {
+            logger.warning("Invalid URL.");
+            model.addAttribute("urls", "Invalid URL.");
+         } else {
+            // TODO: meter a string result num array de strings
+
+            model.addAttribute("urls", result);
+         }
+         } else {
+            logger.warning("No results found.");
+            model.addAttribute("urls", "No results found.");
+         }
+      } catch (RemoteException e) {
+         logger.warning("Error occurred getting sub links.");
+         model.addAttribute("urls", "Error occurred getting sub links.");
+      }
+         model.addAttribute("url", url);
       return "urls";
    }
 
@@ -124,8 +155,9 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       IGatewayCli gw = null;
       try {
          gw = (IGatewayCli) Naming.lookup("rmi://" + SERVER_IP_ADDRESS + ":" + SERVER_PORT + "/gw");
+         logger.info("Connected to the Gateway.");
       } catch (RemoteException | NotBoundException | MalformedURLException e) {
-         System.out.println("Error connecting to the Gateway.");
+         logger.warning("Error connecting to the Gateway.");
       }
       return gw;
    }
@@ -140,7 +172,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          SERVER_IP_ADDRESS = prop.getProperty("server_ip");
          SERVER_PORT = prop.getProperty("server_port");
       } catch (IOException ex) {
-         System.out.println("Error occurred while trying to load config file.");
+         logger.warning("Error occurred while trying to load config file.");
          System.exit(1);
       }
    }
@@ -148,14 +180,28 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    @Override
    public void printOnClient(String s) throws RemoteException {
       if (s.equals("Gateway shutting down.")) {
-         System.out.println("Received shutdown signal from server. Exiting program...");
+         logger.warning("Received shutdown signal from server. Exiting program...");
          try {
              UnicastRemoteObject.unexportObject(this, true);
          } catch (NoSuchObjectException e) {
          }
          System.exit(0);
        } else {
-         System.out.println(s);
+         logger.info("Received message from Gateway: " + s);
        }
    }
+
+   /**
+   * Initializes the logger for the Gateway.
+   */
+  private void initializeLogger() {
+   try {
+     FileHandler fileHandler = new FileHandler("webapp.log");
+     fileHandler.setFormatter(new SimpleFormatter());
+     logger.addHandler(fileHandler);
+     logger.setLevel(Level.INFO);
+   } catch (IOException e) {
+     System.err.println("Failed to configure logger: " + e.getMessage());
+   }
+ }
 }

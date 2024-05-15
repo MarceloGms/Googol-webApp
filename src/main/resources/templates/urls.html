@@ -16,14 +16,28 @@
 		<div class="container-fluid">
 			<h1 class="header">Sub URLS for <span th:text="${url}"></span></h1>
 		</div>
-		<div class="container" id="results-container">
+		<!-- Error -->
+		<div
+			th:if="${urls == 'No results found.' or urls == 'No barrels available.' or urls == 'Error occurred getting sub links.' or urls == 'Invalid URL.'}"
+			class="alert alert-warning"
+			role="alert"
+		>
+		<!-- Results -->
+		<div
+			th:if="${urls != null and urls != 'No results found.' and urls != 'No barrels available.' and urls != 'Error occurred getting sub links.' and urls != 'Invalid URL.'}"
+			class="container"
+			id="results-container"
+		>
 			<div th:each="item : ${urls}" class="resultItem" style="display: none">
 				<div>
 					<h3><a th:href="${item}" th:text="${item}"></a></h3>
 				</div>
 			</div>
 		</div>
-		<div class="pagination">
+		<div
+			th:if="${urls != null and urls != 'No results found.' and urls != 'No barrels available.' and urls != 'Error occurred getting sub links.' and urls != 'Invalid URL.'}"
+			class="pagination"
+		>
 			<button id="prevPage">Previous</button>
 			<span id="currentPage">Page 1</span>
 			<button id="nextPage">Next</button>
