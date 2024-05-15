@@ -19,15 +19,35 @@
 			</h1>
 		</div>
 		<div class="container" id="results-container">
-			<div th:each="result : ${group}" class="resultItem" style="display: none">
-				<div>
-					<h3><a th:href="${result.url}" th:text="${result.title}"></a></h3>
-					<p th:text="${result.citation}"></p>
+			<!-- Error -->
+			<div
+				th:if="${group == 'No results found.' or group == 'No barrels available.' or group == 'Error occurred during search.'}"
+				class="alert alert-warning"
+				role="alert"
+			>
+				<p th:text="${group}"></p>
+			</div>
+			<!-- Results -->
+			<div
+				th:if="${group != null and group != 'No results found.' and group != 'No barrels available.' and group != 'Error occurred during search.'}"
+			>
+				<div
+					th:each="result : ${group}"
+					class="resultItem"
+					style="display: none"
+				>
+					<div>
+						<h3><a th:href="${result.url}" th:text="${result.title}"></a></h3>
+						<p th:text="${result.citation}"></p>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="pagination">
+		<div
+			th:if="${group != null and group != 'No results found.' and group != 'No barrels available.' and group != 'Error occurred during search.'}"
+			class="pagination"
+		>
 			<button id="prevPage">Previous</button>
 			<span id="currentPage">Page 1</span>
 			<button id="nextPage">Next</button>

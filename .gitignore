@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 /bin
 /assets/*.dat
+/assets/*.ser
 gateway.log
 
 ### STS ###

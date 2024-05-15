@@ -76,23 +76,22 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          if (result != null) {
            if (result.equals("")) {
              System.out.println("No results found.\n");
-             return "";
-           } else if (result.equals("No barrels available")) {
-             System.out.println("No barrels available.\n");
-             return "";
+             model.addAttribute("group", "No results found.");
            } else {
+            // TODO: meter a string result num array de objetos Result
+            
             model.addAttribute("group", result);
-            model.addAttribute("query", query);
-      
-            return "search";
            }
          } else {
            System.out.println("No results found.\n");
+            model.addAttribute("group", "No results found.");
          }
        } catch (RemoteException e) {
          System.out.println("Error occurred during search.\n");
+         model.addAttribute("group", "Error occurred during search.");
        }
-       return "error";
+       model.addAttribute("query", query);
+       return "search";
    }
 
    @GetMapping("/urls")
