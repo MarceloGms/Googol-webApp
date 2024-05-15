@@ -5,10 +5,10 @@ public class Result {
   private String url;
   private String citation;
 
-  public Result(String title, String url, String citation) {
+  public Result(String title, String citation, String url) {
     this.title = title;
-    this.url = url;
     this.citation = citation;
+    this.url = url;
   }
 
   public String getTitle() {
@@ -18,6 +18,14 @@ public class Result {
   public void setTitle(String title) {
     this.title = title;
   }
+  
+  public String getCitation() {
+    return citation;
+  }
+  
+  public void setCitation(String citation) {
+    this.citation = citation;
+  }
 
   public String getUrl() {
     return url;
@@ -25,13 +33,5 @@ public class Result {
 
   public void setUrl(String url) {
     this.url = url;
-  }
-
-  public String getCitation() {
-    return citation;
-  }
-
-  public void setCitation(String citation) {
-    this.citation = citation;
   }
 }
