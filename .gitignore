@@ -3,6 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+/bin
+/assets/*.dat
+gateway.log
 
 ### STS ###
 .apt_generated

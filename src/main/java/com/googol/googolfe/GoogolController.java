@@ -65,11 +65,11 @@ public class GoogolController {
    * Connects to the RMI gateway by looking up the server's remote object.
    * If connection fails, it handles the error and exits the program.
    */
-  private void connectToGateway() {
+  /* private void connectToGateway() {
     try {
         gw = (IGatewayCli) Naming.lookup("rmi://" + SERVER_IP_ADDRESS + ":" + SERVER_PORT + "/gw");
     } catch (RemoteException | NotBoundException | MalformedURLException e) {
         handleErrorAndExit("Error connecting to the Gateway.");
     }
-  }
+  } */
 }
