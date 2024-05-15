@@ -9,11 +9,6 @@
 - Navigate to the primary directory (googol).
 - Run the command: `make gw`
 
-##### Note:
-
-- If the code is not compiling you might have to create a `bin` folder in the primary directory.
-- For Linux users, use the commented command in the `dl` section of the makefile instead of the current one.
-
 ### Run Barrels
 
 - Open a terminal (or multiple terminals).
@@ -40,15 +35,15 @@
 - Navigate to the primary directory (googol).
 - Run the command for each client: `make cli`
 
+##### Note:
+
+- Make sure the gateway is running.
+
 ### Run Web App (Meta 2)
 
 - Open a terminal (or multiple terminals for multiple clients).
 - Navigate to the primary directory (googol).
 - Run the command for each client: `make web`
-
-##### Note:
-
-- Make sure the gateway is running.
 
 ### Final considerations
 

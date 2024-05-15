@@ -1,42 +1,98 @@
 package com.googol.googolfe;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 
 @Controller
-public class GoogolController {
+public class GoogolController extends UnicastRemoteObject implements IClient {
 
-   private IGatewayCli gw;
+   /**
+   * The IP address of the gateway RMI server.
+   */
+   private String SERVER_IP_ADDRESS;
+
+   /**
+   * The port number of the gateway RMI server.
+   */
+   private String SERVER_PORT;
+
+   GoogolController() throws RemoteException{
+      loadConfig();
+   }
 
    @GetMapping("/")
    public String showGoogolPage() {
       return "googol";
    }
 
-   @GetMapping("/search")
-   public String showSearchPage(Model model, @RequestParam() String query, @RequestParam(defaultValue = "0") String page) {
-      List<Result> searchResults = new ArrayList<>();
-
-      for (int i = 0; i < 30; i++) {
-         String title = "Result " + (i + 1);
-         String url = "http://example.com/result" + (i + 1);
-         String citation = "Citation for Result " + (i + 1);
-         searchResults.add(new Result(title, url, citation));
+   @PostMapping("/sendUrl")
+   public ResponseEntity<String> sendUrlToServer(@RequestBody UrlRequestBody requestBody) {
+      IGatewayCli gw = connectToGateway();
+      if (gw == null) {
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error connecting to the Gateway.");
+      }
+      String url = requestBody.getUrl();
+      System.out.println("Received URL: " + url);
+      try {
+         gw.subscribe(this);
+         gw.send(url, this);
+         gw.unsubscribe(this);
+      } catch (RemoteException e) {
+         System.out.println("Error occurred while sending URL to the Gateway.");
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while sending URL to the Gateway.");
       }
 
-      model.addAttribute("group", searchResults);
-      model.addAttribute("query", query);
-      model.addAttribute("page", page);
+      return ResponseEntity.status(HttpStatus.OK).body("URL received successfully");
+   }
 
-      return "search";
+   @GetMapping("/search")
+   public String showSearchPage(Model model, @RequestParam() String query) {
+      IGatewayCli gw = connectToGateway();
+      if (gw == null) {
+         return "error";
+      }
+      String result = null;
+      try {
+         result = gw.search(query);
+         if (result != null) {
+           if (result.equals("")) {
+             System.out.println("No results found.\n");
+             return "";
+           } else if (result.equals("No barrels available")) {
+             System.out.println("No barrels available.\n");
+             return "";
+           } else {
+            model.addAttribute("group", result);
+            model.addAttribute("query", query);
+      
+            return "search";
+           }
+         } else {
+           System.out.println("No results found.\n");
+         }
+       } catch (RemoteException e) {
+         System.out.println("Error occurred during search.\n");
+       }
+       return "error";
    }
 
    @GetMapping("/urls")
@@ -65,11 +121,42 @@ public class GoogolController {
    * Connects to the RMI gateway by looking up the server's remote object.
    * If connection fails, it handles the error and exits the program.
    */
-  /* private void connectToGateway() {
-    try {
-        gw = (IGatewayCli) Naming.lookup("rmi://" + SERVER_IP_ADDRESS + ":" + SERVER_PORT + "/gw");
-    } catch (RemoteException | NotBoundException | MalformedURLException e) {
-        handleErrorAndExit("Error connecting to the Gateway.");
-    }
-  } */
+   private IGatewayCli connectToGateway() {
+      IGatewayCli gw = null;
+      try {
+         gw = (IGatewayCli) Naming.lookup("rmi://" + SERVER_IP_ADDRESS + ":" + SERVER_PORT + "/gw");
+      } catch (RemoteException | NotBoundException | MalformedURLException e) {
+         System.out.println("Error connecting to the Gateway.");
+      }
+      return gw;
+   }
+
+   /**
+   * Loads the server IP address from the config file.
+   */
+   private void loadConfig() {
+      Properties prop = new Properties();
+      try (FileInputStream input = new FileInputStream("assets/config.properties")) {
+         prop.load(input);
+         SERVER_IP_ADDRESS = prop.getProperty("server_ip");
+         SERVER_PORT = prop.getProperty("server_port");
+      } catch (IOException ex) {
+         System.out.println("Error occurred while trying to load config file.");
+         System.exit(1);
+      }
+   }
+
+   @Override
+   public void printOnClient(String s) throws RemoteException {
+      if (s.equals("Gateway shutting down.")) {
+         System.out.println("Received shutdown signal from server. Exiting program...");
+         try {
+             UnicastRemoteObject.unexportObject(this, true);
+         } catch (NoSuchObjectException e) {
+         }
+         System.exit(0);
+       } else {
+         System.out.println(s);
+       }
+   }
 }

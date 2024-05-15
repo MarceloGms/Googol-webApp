@@ -56,8 +56,23 @@ document.addEventListener("DOMContentLoaded", function () {
 				return;
 			}
 			if (idxValue !== "") {
-				// send the url to the server
-				alert("URL sent to the server.");
+				// Send the URL to the server via REST
+				fetch("/sendUrl", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ url: idxValue }),
+				})
+					.then((response) => response.text())
+					.then((data) => {
+						console.log(data);
+						alert("URL sent to the server.");
+					})
+					.catch((error) => {
+						console.error("Error:", error);
+						alert("Failed to send URL to the server.");
+					});
 			}
 		}
 	});
