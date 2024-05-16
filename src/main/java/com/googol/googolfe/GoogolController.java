@@ -1,5 +1,4 @@
 package com.googol.googolfe;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -12,7 +11,6 @@ import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
 import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,33 +24,26 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-
 @Controller
 public class GoogolController extends UnicastRemoteObject implements IClient {
-
    private static final Logger logger = Logger.getLogger(Gateway.class.getName());
-
    /**
    * The IP address of the gateway RMI server.
    */
    private String SERVER_IP_ADDRESS;
-
    /**
    * The port number of the gateway RMI server.
    */
    private String SERVER_PORT;
-
    GoogolController() throws RemoteException{
       loadConfig();
       initializeLogger();
       logger.info("Googol Controller started.");
    }
-
    @GetMapping("/")
    public String showGoogolPage() {
       return "googol";
    }
-
    @PostMapping("/sendUrl")
    public ResponseEntity<String> sendUrlToServer(@RequestBody UrlRequestBody requestBody) {
       IGatewayCli gw = connectToGateway();
@@ -69,46 +60,59 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          logger.warning("Error occurred while sending URL to the Gateway.");
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while sending URL to the Gateway.");
       }
-
       return ResponseEntity.status(HttpStatus.OK).body("URL received successfully");
    }
-
    @GetMapping("/search")
    public String showSearchPage(Model model, @RequestParam() String query) {
       IGatewayCli gw = connectToGateway();
       if (gw == null) {
-         model.addAttribute("group", "Error: Unable to connect to gateway.");
-         model.addAttribute("query", query);
          return "error";
       }
-
-      String result;
+      String result = null;
       try {
          result = gw.search(query);
-      } catch (RemoteException e) {
-         logger.warning("Error occurred during search: " + e.getMessage());
-         model.addAttribute("group", "Error occurred during search.");
-         model.addAttribute("query", query);
-         return "search";
-      }
-
-      if (result == null || result.isEmpty()) {
-         logger.warning("No results found.");
-         model.addAttribute("group", "No results found.");
-      } else {
-         Result[] res = parseResults(result);
-         if (res != null) {
-            model.addAttribute("group", res);
+         if (result != null) {
+           if (result.equals("")) {
+             logger.warning("No results found.\n");
+             model.addAttribute("group", "No results found.");
+           } else {
+               String[] parts;
+               String[] new_parts = new String[3];
+               String[] results = result.split("<>");
+               if (results.length != 0){
+                  Result[] res = new Result[results.length];
+                  for (int i = 0; i < results.length; i++) {
+                     parts = results[i].split("\n");
+                     if (parts.length == 2){
+                        new_parts[0] = parts[0];
+                        new_parts[1] = "";
+                        new_parts[2] = parts[1];
+                     }else if (parts.length == 1){
+                        new_parts[0] = "Sem Titulo";
+                        new_parts[1] = "";
+                        new_parts[2] =  parts[0];
+                     }else{
+                        new_parts[0] = parts[0];
+                        new_parts[1] = parts[1];
+                        new_parts[2] = parts[2];
+                     }
+                     res[i] = new Result(new_parts[0], new_parts[1], new_parts[2]);
+                  }
+            
+                  model.addAttribute("group", res);
+               }
+           }
          } else {
+            logger.warning("No results found.");
             model.addAttribute("group", "No results found.");
          }
+      } catch (RemoteException e) {
+         logger.warning("Error occurred during search.");
+         model.addAttribute("group", "Error occurred during search.");
       }
-
       model.addAttribute("query", query);
       return "search";
    }
-
-
    @GetMapping("/urls")
    public String showSubUrlsPage(Model model, @RequestParam() String url) {
       IGatewayCli gw = connectToGateway();
@@ -130,6 +134,16 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
 
             model.addAttribute("urls", result);
          }
+            if (result.equals("")) {
+               logger.warning("No results found.");
+               model.addAttribute("urls", "No results found.");
+            } else if (result.equals("Invalid URL.")) {
+               logger.warning("Invalid URL.");
+               model.addAttribute("urls", "Invalid URL.");
+            } else {
+               String[] urls = result.split("\n");
+               model.addAttribute("urls", urls);
+            }
          } else {
             logger.warning("No results found.");
             model.addAttribute("urls", "No results found.");
@@ -141,7 +155,6 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          model.addAttribute("url", url);
       return "urls";
    }
-
    @GetMapping("/admin")
    public String showAdminPage(Model model) {
       List<String> brls = new ArrayList<>();
@@ -152,7 +165,6 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       model.addAttribute("searches", new String[] {"Search 1", "Search 2", "Search 3", "Search 4", "Search 5", "Search 6", "Search 7", "Search 8", "Search 9", "Search 10"});
       return "admin";
    }
-
    /**
    * Connects to the RMI gateway by looking up the server's remote object.
    * If connection fails, it handles the error and exits the program.
@@ -167,7 +179,6 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       }
       return gw;
    }
-
    /**
    * Loads the server IP address from the config file.
    */
@@ -182,7 +193,6 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          System.exit(1);
       }
    }
-
    @Override
    public void printOnClient(String s) throws RemoteException {
       if (s.equals("Gateway shutting down.")) {
@@ -196,42 +206,17 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          logger.info("Received message from Gateway: " + s);
        }
    }
-
    /**
    * Initializes the logger for the Gateway.
    */
-   private void initializeLogger() {
-      try {
-         FileHandler fileHandler = new FileHandler("webapp.log");
-         fileHandler.setFormatter(new SimpleFormatter());
-         logger.addHandler(fileHandler);
-         logger.setLevel(Level.INFO);
-      } catch (IOException e) {
-         System.err.println("Failed to configure logger: " + e.getMessage());
-      }
+  private void initializeLogger() {
+   try {
+     FileHandler fileHandler = new FileHandler("webapp.log");
+     fileHandler.setFormatter(new SimpleFormatter());
+     logger.addHandler(fileHandler);
+     logger.setLevel(Level.INFO);
+   } catch (IOException e) {
+     System.err.println("Failed to configure logger: " + e.getMessage());
    }
-
-   private Result[] parseResults(String result) {
-      String[] parts;
-      String[] new_parts = new String[3];
-      String[] results = result.split("<>");
-      if (results.length != 0){
-         Result[] res = new Result[results.length];
-         for (int i = 0; i < results.length; i++) {
-            parts = results[i].split("\n");
-            if (parts.length == 2){
-               new_parts[0] = parts[0];
-               new_parts[1] = "";
-               new_parts[2] = parts[1];
-            }else{
-               new_parts[0] = parts[0];
-               new_parts[1] = parts[1];
-               new_parts[2] = parts[2];
-            }
-            res[i] = new Result(new_parts[0], new_parts[1], new_parts[2]);
-         }
-         return res;
-      }
-      return null;
-   }
+ }
 }
