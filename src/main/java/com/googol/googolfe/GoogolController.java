@@ -26,11 +26,14 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 @Controller
 public class GoogolController extends UnicastRemoteObject implements IClient {
+
    private static final Logger logger = Logger.getLogger(Gateway.class.getName());
+
    /**
    * The IP address of the gateway RMI server.
    */
    private String SERVER_IP_ADDRESS;
+
    /**
    * The port number of the gateway RMI server.
    */
@@ -40,10 +43,12 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       initializeLogger();
       logger.info("Googol Controller started.");
    }
+
    @GetMapping("/")
    public String showGoogolPage() {
       return "googol";
    }
+
    @PostMapping("/sendUrl")
    public ResponseEntity<String> sendUrlToServer(@RequestBody UrlRequestBody requestBody) {
       IGatewayCli gw = connectToGateway();
@@ -62,6 +67,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       }
       return ResponseEntity.status(HttpStatus.OK).body("URL received successfully");
    }
+
    @GetMapping("/search")
    public String showSearchPage(Model model, @RequestParam() String query) {
       IGatewayCli gw = connectToGateway();
@@ -113,6 +119,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       model.addAttribute("query", query);
       return "search";
    }
+
    @GetMapping("/urls")
    public String showSubUrlsPage(Model model, @RequestParam() String url) {
       IGatewayCli gw = connectToGateway();
@@ -141,70 +148,75 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       model.addAttribute("urls", "Error occurred getting sub links.");
    }
       model.addAttribute("url", url);
-   return "urls";
-}
-@GetMapping("/admin")
-public String showAdminPage(Model model) {
-   List<String> brls = new ArrayList<>();
-   for (int i = 1; i <= 7; i++) {
-      brls.add("Barrel " + i);
+      return "urls";
    }
-   model.addAttribute("barrels", brls);
-   model.addAttribute("searches", new String[] {"Search 1", "Search 2", "Search 3", "Search 4", "Search 5", "Search 6", "Search 7", "Search 8", "Search 9", "Search 10"});
-   return "admin";
-}
-/**
-* Connects to the RMI gateway by looking up the server's remote object.
-* If connection fails, it handles the error and exits the program.
-*/
-private IGatewayCli connectToGateway() {
-   IGatewayCli gw = null;
-   try {
-      gw = (IGatewayCli) Naming.lookup("rmi://" + SERVER_IP_ADDRESS + ":" + SERVER_PORT + "/gw");
-      logger.info("Connected to the Gateway.");
-   } catch (RemoteException | NotBoundException | MalformedURLException e) {
-      logger.warning("Error connecting to the Gateway.");
-   }
-   return gw;
-}
-/**
-* Loads the server IP address from the config file.
-*/
-private void loadConfig() {
-   Properties prop = new Properties();
-   try (FileInputStream input = new FileInputStream("assets/config.properties")) {
-      prop.load(input);
-      SERVER_IP_ADDRESS = prop.getProperty("server_ip");
-      SERVER_PORT = prop.getProperty("server_port");
-   } catch (IOException ex) {
-      logger.warning("Error occurred while trying to load config file.");
-      System.exit(1);
-   }
-}
-@Override
-public void printOnClient(String s) throws RemoteException {
-   if (s.equals("Gateway shutting down.")) {
-      logger.warning("Received shutdown signal from server. Exiting program...");
-      try {
-          UnicastRemoteObject.unexportObject(this, true);
-      } catch (NoSuchObjectException e) {
+
+   @GetMapping("/admin")
+   public String showAdminPage(Model model) {
+      List<String> brls = new ArrayList<>();
+      for (int i = 1; i <= 7; i++) {
+         brls.add("Barrel " + i);
       }
-      System.exit(0);
-    } else {
-      logger.info("Received message from Gateway: " + s);
-    }
-}
-/**
-* Initializes the logger for the Gateway.
-*/
-private void initializeLogger() {
-try {
-  FileHandler fileHandler = new FileHandler("webapp.log");
-  fileHandler.setFormatter(new SimpleFormatter());
-  logger.addHandler(fileHandler);
-  logger.setLevel(Level.INFO);
-} catch (IOException e) {
-  System.err.println("Failed to configure logger: " + e.getMessage());
-}
-}
+      model.addAttribute("barrels", brls);
+      model.addAttribute("searches", new String[] {"Search 1", "Search 2", "Search 3", "Search 4", "Search 5", "Search 6", "Search 7", "Search 8", "Search 9", "Search 10"});
+      return "admin";
+   }
+
+   /**
+   * Connects to the RMI gateway by looking up the server's remote object.
+   * If connection fails, it handles the error and exits the program.
+   */
+   private IGatewayCli connectToGateway() {
+      IGatewayCli gw = null;
+      try {
+         gw = (IGatewayCli) Naming.lookup("rmi://" + SERVER_IP_ADDRESS + ":" + SERVER_PORT + "/gw");
+         logger.info("Connected to the Gateway.");
+      } catch (RemoteException | NotBoundException | MalformedURLException e) {
+         logger.warning("Error connecting to the Gateway.");
+      }
+      return gw;
+   }
+
+   /**
+   * Loads the server IP address from the config file.
+   */
+   private void loadConfig() {
+      Properties prop = new Properties();
+      try (FileInputStream input = new FileInputStream("assets/config.properties")) {
+         prop.load(input);
+         SERVER_IP_ADDRESS = prop.getProperty("server_ip");
+         SERVER_PORT = prop.getProperty("server_port");
+      } catch (IOException ex) {
+         logger.warning("Error occurred while trying to load config file.");
+         System.exit(1);
+      }
+   }
+
+   @Override
+   public void printOnClient(String s) throws RemoteException {
+      if (s.equals("Gateway shutting down.")) {
+         logger.warning("Received shutdown signal from server. Exiting program...");
+         try {
+            UnicastRemoteObject.unexportObject(this, true);
+         } catch (NoSuchObjectException e) {
+         }
+         System.exit(0);
+      } else {
+         logger.info("Received message from Gateway: " + s);
+      }
+   }
+
+   /**
+   * Initializes the logger for the Gateway.
+   */
+   private void initializeLogger() {
+      try {
+         FileHandler fileHandler = new FileHandler("webapp.log");
+         fileHandler.setFormatter(new SimpleFormatter());
+         logger.addHandler(fileHandler);
+         logger.setLevel(Level.INFO);
+      } catch (IOException e) {
+         System.err.println("Failed to configure logger: " + e.getMessage());
+      }
+   }
 }
