@@ -2,6 +2,7 @@ const results = document.querySelectorAll(".resultItem");
 const prevButton = document.getElementById("prevPage");
 const nextButton = document.getElementById("nextPage");
 const currentPageDisplay = document.getElementById("currentPage");
+const HackerNewsButton = document.getElementById("fixedButton");
 
 let currentPage = 1;
 const resultsPerPage = 10;
@@ -33,4 +34,8 @@ nextButton.addEventListener("click", () => {
 		currentPage++;
 		showPage(currentPage);
 	}
+});
+
+HackerNewsButton.addEventListener("click", () => {
+	window.location.href = "https://news.ycombinator.com/";
 });
