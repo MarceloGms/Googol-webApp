@@ -1,5 +1,4 @@
 package com.googol.googolfe;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -12,8 +11,6 @@ import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,7 +23,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-
 @Controller
 public class GoogolController extends UnicastRemoteObject implements IClient {
 
@@ -41,7 +37,6 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    * The port number of the gateway RMI server.
    */
    private String SERVER_PORT;
-
    GoogolController() throws RemoteException{
       loadConfig();
       initializeLogger();
@@ -57,10 +52,11 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    public ResponseEntity<String> sendUrlToServer(@RequestBody UrlRequestBody requestBody) {
       IGatewayCli gw = connectToGateway();
       if (gw == null) {
-         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error connecting to the Gateway.");
+         logger.warning("Gateway is down.");
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Gateway is down.");
       }
       String url = requestBody.getUrl();
-      logger.info("Received URL: {}" + url);
+      logger.info("Received URL: " + url + " sending to Gateway.");
       try {
          gw.subscribe(this);
          gw.send(url, this);
@@ -69,7 +65,6 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          logger.warning("Error occurred while sending URL to the Gateway.");
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while sending URL to the Gateway.");
       }
-
       return ResponseEntity.status(HttpStatus.OK).body("URL received successfully");
    }
 
@@ -77,6 +72,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    public String showSearchPage(Model model, @RequestParam() String query) {
       IGatewayCli gw = connectToGateway();
       if (gw == null) {
+         model.addAttribute("error", "Gateway is down.");
          return "error";
       }
       String result = null;
@@ -84,7 +80,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          result = gw.search(query);
          if (result != null) {
            if (result.equals("")) {
-             logger.warning("No results found.\n");
+             logger.warning("No results found.");
              model.addAttribute("group", "No results found.");
            } else {
                String[] parts;
@@ -129,31 +125,31 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    public String showSubUrlsPage(Model model, @RequestParam() String url) {
       IGatewayCli gw = connectToGateway();
       if (gw == null) {
+         model.addAttribute("error", "Gateway is down.");
          return "error";
       }
       String result = null;
       try {
          result = gw.findSubLinks(url);
-         if (result != null) {
-            if (result.equals("")) {
-               logger.warning("No results found.");
-               model.addAttribute("urls", "No results found.");
-            } else if (result.equals("Invalid URL.")) {
-               logger.warning("Invalid URL.");
-               model.addAttribute("urls", "Invalid URL.");
-            } else {
-               String[] urls = result.split("\n");
-               model.addAttribute("urls", urls);
-            }
-         } else {
+         if (result != null) {if (result.equals("")) {
             logger.warning("No results found.");
             model.addAttribute("urls", "No results found.");
+         } else if (result.equals("Invalid URL.")) {
+            logger.warning("Invalid URL.");
+            model.addAttribute("urls", "Invalid URL.");
+         } else {
+            String[] urls = result.split("\n");
+            model.addAttribute("urls", urls);
          }
-      } catch (RemoteException e) {
-         logger.warning("Error occurred getting sub links.");
-         model.addAttribute("urls", "Error occurred getting sub links.");
+      } else {
+         logger.warning("No results found.");
+         model.addAttribute("urls", "No results found.");
       }
-         model.addAttribute("url", url);
+   } catch (RemoteException e) {
+      logger.warning("Error occurred getting sub links.");
+      model.addAttribute("urls", "Error occurred getting sub links.");
+   }
+      model.addAttribute("url", url);
       return "urls";
    }
 
@@ -203,26 +199,26 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       if (s.equals("Gateway shutting down.")) {
          logger.warning("Received shutdown signal from server. Exiting program...");
          try {
-             UnicastRemoteObject.unexportObject(this, true);
+            UnicastRemoteObject.unexportObject(this, true);
          } catch (NoSuchObjectException e) {
          }
          System.exit(0);
-       } else {
+      } else {
          logger.info("Received message from Gateway: " + s);
-       }
+      }
    }
 
    /**
    * Initializes the logger for the Gateway.
    */
-  private void initializeLogger() {
-   try {
-     FileHandler fileHandler = new FileHandler("webapp.log");
-     fileHandler.setFormatter(new SimpleFormatter());
-     logger.addHandler(fileHandler);
-     logger.setLevel(Level.INFO);
-   } catch (IOException e) {
-     System.err.println("Failed to configure logger: " + e.getMessage());
+   private void initializeLogger() {
+      try {
+         FileHandler fileHandler = new FileHandler("webapp.log");
+         fileHandler.setFormatter(new SimpleFormatter());
+         logger.addHandler(fileHandler);
+         logger.setLevel(Level.INFO);
+      } catch (IOException e) {
+         System.err.println("Failed to configure logger: " + e.getMessage());
+      }
    }
- }
 }

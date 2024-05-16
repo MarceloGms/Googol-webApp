@@ -22,6 +22,9 @@
 			class="alert alert-warning"
 			role="alert"
 		>
+			<!-- Display error message -->
+			<span th:text="${urls}"></span>
+		</div>
 		<!-- Results -->
 		<div
 			th:if="${urls != null and urls != 'No results found.' and urls != 'No barrels available.' and urls != 'Error occurred getting sub links.' and urls != 'Invalid URL.'}"
@@ -42,7 +45,6 @@
 			<span id="currentPage">Page 1</span>
 			<button id="nextPage">Next</button>
 		</div>
-
 		<script src="/js/search.js"></script>
 	</body>
 </html>
