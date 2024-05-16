@@ -98,6 +98,10 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
                         new_parts[0] = parts[0];
                         new_parts[1] = "";
                         new_parts[2] = parts[1];
+                     }else if (parts.length == 1){
+                        new_parts[0] = "Sem Titulo";
+                        new_parts[1] = "";
+                        new_parts[2] =  parts[0];
                      }else{
                         new_parts[0] = parts[0];
                         new_parts[1] = parts[1];
@@ -131,17 +135,16 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       try {
          result = gw.findSubLinks(url);
          if (result != null) {
-         if (result.equals("")) {
-            logger.warning("No results found.");
-            model.addAttribute("urls", "No results found.");
-         } else if (result.equals("Invalid URL.")) {
-            logger.warning("Invalid URL.");
-            model.addAttribute("urls", "Invalid URL.");
-         } else {
-            // TODO: meter a string result num array de strings
-
-            model.addAttribute("urls", result);
-         }
+            if (result.equals("")) {
+               logger.warning("No results found.");
+               model.addAttribute("urls", "No results found.");
+            } else if (result.equals("Invalid URL.")) {
+               logger.warning("Invalid URL.");
+               model.addAttribute("urls", "Invalid URL.");
+            } else {
+               String[] urls = result.split("\n");
+               model.addAttribute("urls", urls);
+            }
          } else {
             logger.warning("No results found.");
             model.addAttribute("urls", "No results found.");
