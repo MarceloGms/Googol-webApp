@@ -26,13 +26,9 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr th:each="id, i : ${barrels}" th:if="${i.index % 2 == 0}">
-									<td th:text="${id}"></td>
-									<!-- Check if next barrel exists -->
-									<td
-										th:if="${barrels.size() > i.index + 1}"
-										th:text="${barrels[i.index + 1]}"
-									></td>
+								<tr th:each="barrel : ${barrels}">
+									<td th:text="${barrel.id}"></td>
+									<td th:text="barrel.time"></td>
 								</tr>
 							</tbody>
 						</table>
@@ -57,5 +53,6 @@
 			</div>
 		</div>
 		<h1 class="header">Admin page</h1>
+		<script src="/js/admin.js"></script>
 	</body>
 </html>

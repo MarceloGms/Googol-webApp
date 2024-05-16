@@ -1,7 +1,9 @@
 const results = document.querySelectorAll(".resultItem");
 const prevButton = document.getElementById("prevPage");
 const nextButton = document.getElementById("nextPage");
+const hackerNewsButton = document.getElementById("hackerNews");
 const currentPageDisplay = document.getElementById("currentPage");
+const query = window.location.search.split("=")[1];
 
 let currentPage = 1;
 const resultsPerPage = 10;
@@ -33,4 +35,27 @@ nextButton.addEventListener("click", () => {
 		currentPage++;
 		showPage(currentPage);
 	}
+});
+
+hackerNewsButton.addEventListener("click", () => {
+	fetch("/sendHackerNews", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ query: query }),
+	})
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error("Failed access hacker news API.");
+			}
+			return;
+		})
+		.then(() => {
+			alert("Success.");
+		})
+		.catch((error) => {
+			console.error("Error:", error);
+			alert("Failed access hacker news API.");
+		});
 });

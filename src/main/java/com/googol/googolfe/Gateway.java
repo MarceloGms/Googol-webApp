@@ -316,6 +316,10 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
       barrels.add(brl);
       brlCount++;
       LOGGER.info("Barrel added with ID: " + currentId + "\n");
+      ArrayList<Integer> activeBarrels = new ArrayList<>();
+      for (IBarrel b : barrels) {
+        activeBarrels.add(b.getId());
+      }
       return currentId;
     }
   }

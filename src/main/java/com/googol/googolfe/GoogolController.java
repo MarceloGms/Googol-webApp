@@ -48,6 +48,16 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       return "googol";
    }
 
+   @PostMapping("/sendHackerNews")
+   public ResponseEntity<String> sendUrlToServer(@RequestBody HNRequestBody requestBody) {
+      String query = requestBody.getQuery();
+      logger.info("Received query for Hacker News: " + query);
+      // TODO: fazer merdas do hacker news
+      
+      return ResponseEntity.status(HttpStatus.OK).body("query processed successfully");
+   }
+   
+
    @PostMapping("/sendUrl")
    public ResponseEntity<String> sendUrlToServer(@RequestBody UrlRequestBody requestBody) {
       IGatewayCli gw = connectToGateway();
