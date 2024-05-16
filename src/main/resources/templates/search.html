@@ -10,6 +10,14 @@
 			integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
 			crossorigin="anonymous"
 		/>
+		<style>
+			#fixedButton {
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				z-index: 1000;
+			}
+		</style>
 	</head>
 	<link rel="stylesheet" href="/css/results.css" />
 	<body>
@@ -53,6 +61,9 @@
 			<button id="nextPage">Next</button>
 			<button id="hackerNews">Hacker News</button>
 		</div>
+
+		<!-- Fixed Hacker News Button -->
+		<button id="fixedButton" class="btn btn-success">Index to Hacker News</button>
 
 		<script src="/js/search.js"></script>
 	</body>
