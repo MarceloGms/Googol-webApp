@@ -11,7 +11,6 @@ import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -53,10 +52,11 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    public ResponseEntity<String> sendUrlToServer(@RequestBody UrlRequestBody requestBody) {
       IGatewayCli gw = connectToGateway();
       if (gw == null) {
-         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error connecting to the Gateway.");
+         logger.warning("Gateway is down.");
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Gateway is down.");
       }
       String url = requestBody.getUrl();
-      logger.info("Received URL: {}" + url);
+      logger.info("Received URL: " + url + " sending to Gateway.");
       try {
          gw.subscribe(this);
          gw.send(url, this);
@@ -72,6 +72,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    public String showSearchPage(Model model, @RequestParam() String query) {
       IGatewayCli gw = connectToGateway();
       if (gw == null) {
+         model.addAttribute("error", "Gateway is down.");
          return "error";
       }
       String result = null;
@@ -124,6 +125,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    public String showSubUrlsPage(Model model, @RequestParam() String url) {
       IGatewayCli gw = connectToGateway();
       if (gw == null) {
+         model.addAttribute("error", "Gateway is down.");
          return "error";
       }
       String result = null;

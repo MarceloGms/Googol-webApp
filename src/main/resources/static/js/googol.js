@@ -64,14 +64,18 @@ document.addEventListener("DOMContentLoaded", function () {
 					},
 					body: JSON.stringify({ url: idxValue }),
 				})
-					.then((response) => response.text())
-					.then((data) => {
-						console.log(data);
+					.then((response) => {
+						if (!response.ok) {
+							throw new Error("Failed to send URL to the server.");
+						}
+						return;
+					})
+					.then(() => {
 						alert("URL sent to the server.");
 					})
 					.catch((error) => {
 						console.error("Error:", error);
-						alert("Failed to send URL to the server.");
+						alert("Failed to send URL to the server. Gateway may be down.");
 					});
 			}
 		}
