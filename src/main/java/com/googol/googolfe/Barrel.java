@@ -322,6 +322,9 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
             if (readHashMapFromFile("Barrel" + id + "linkedPage.dat") != null) {
                 linkedPage = readHashMapFromFile("Barrel" + id + "linkedPage.dat");
             }
+            if (readTitleCitationFromFile("Barrel" + id + "title_citation.dat") != null) {
+                title_citation = readTitleCitationFromFile("Barrel" + id + "title_citation.dat");
+            }
 
             // Listen for multicast messages
             while (running) {
@@ -372,6 +375,7 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
                 // Save the inverted index and linked pages to files
                 saveHashMapToFile(invertedIndex, "Barrel" + id + "index.dat");
                 saveHashMapToFile(linkedPage, "Barrel" + id + "linkedPage.dat");
+                saveTitleCitationToFile(title_citation, "Barrel" + id + "title_citation.dat");
             }
         } catch (Exception e) {
             try {
@@ -424,6 +428,52 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
                 return hashMap;
             } catch (Exception ex) {
                 //ex.printStackTrace(); //Ver o erro
+                return null;
+            }
+        }
+    }
+
+    /**
+     * The saveTitleCitationToFile method is used to save the title and citation hashmap to a file.
+     * @param hashMap hashmap to save
+     * @param filename name of the file to save
+     */
+    private static void saveTitleCitationToFile(HashMap<String, LinkedHashSet<String>> hashMap, String filename) {
+        synchronized (getLockObject(filename)) {
+            try {
+                FileOutputStream fileOut = new FileOutputStream("assets/" + filename);
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+                objectOut.writeObject(hashMap);
+                objectOut.close();
+            } catch (IOException ex) {
+                return;
+                //System.out.println("Error writing file: " + ex.getMessage());
+            }
+        }
+    }
+
+    /**
+     * The readTitleCitationFromFile method is used to read the title and citation hashmap from a file.
+     * @param hashMap
+     * @param filename
+     */
+
+    private static HashMap<String, LinkedHashSet<String>> readTitleCitationFromFile(String filename) {
+        synchronized (getLockObject(filename)) {
+            File file = new File("assets/" + filename);
+            // If file does not exist, return null
+            if (!file.exists()) {
+                return null;
+            }
+            try {
+                FileInputStream fileIn = new FileInputStream(file);
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+                @SuppressWarnings("unchecked")
+                HashMap<String, LinkedHashSet<String>> hashMap = (HashMap<String, LinkedHashSet<String>>) objectIn.readObject();
+                objectIn.close();
+                return hashMap;
+            } catch (Exception ex) {
+                //System.out.println("Error reading file: " + ex.getMessage());
                 return null;
             }
         }
