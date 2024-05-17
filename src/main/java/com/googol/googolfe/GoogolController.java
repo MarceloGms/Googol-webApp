@@ -137,10 +137,6 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
                         new_parts[0] = parts[0];
                         new_parts[1] = "";
                         new_parts[2] = parts[1];
-                     }else if (parts.length == 1){
-                        new_parts[0] = "Sem Titulo";
-                        new_parts[1] = "";
-                        new_parts[2] =  parts[0];
                      }else{
                         new_parts[0] = parts[0];
                         new_parts[1] = parts[1];
