@@ -15,29 +15,17 @@
 - Navigate to the primary directory (googol).
 - Run the command: `make brl`
 
-##### Note:
-
-- Make sure the gateway is running.
-
 ### Run Downloader
 
 - Open a terminal.
 - Navigate to the primary directory (googol).
 - Run the command: `make dl`
 
-##### Note:
-
-- Make sure the gateway is running.
-
 ### Run Clients (Meta 1)
 
 - Open a terminal (or multiple terminals for multiple clients).
 - Navigate to the primary directory (googol).
 - Run the command for each client: `make cli`
-
-##### Note:
-
-- Make sure the gateway is running.
 
 ### Run Web App (Meta 2)
 
