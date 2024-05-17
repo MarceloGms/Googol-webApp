@@ -45,6 +45,9 @@
 			<span id="currentPage">Page 1</span>
 			<button id="nextPage">Next</button>
 		</div>
-		<script src="/js/search.js"></script>
+		<script th:inline="javascript">
+			var urlsData = /*[[${urls}]]*/ null;
+		</script>
+		<script src="/js/urls.js"></script>
 	</body>
 </html>

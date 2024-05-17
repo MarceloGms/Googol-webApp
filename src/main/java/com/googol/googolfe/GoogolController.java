@@ -1,4 +1,5 @@
 package com.googol.googolfe;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -19,11 +20,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.ui.Model;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
 @Controller
 public class GoogolController extends UnicastRemoteObject implements IClient {
 
@@ -43,7 +46,6 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
 
    @Autowired
    private SimpMessagingTemplate template;
-
 
    GoogolController() throws RemoteException{
       loadConfig();
@@ -234,6 +236,66 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          return "error";
       }
       return "admin";
+   }
+
+   @PostMapping("/sendHackerNews")
+   public ResponseEntity<String> sendUrlToServer(@RequestBody HNRequestBody requestBody) {
+      if (gw == null) {
+         gw = connectToGateway();
+         if (gw != null)
+            try {
+               gw.subscribe(this);
+            } catch (RemoteException e) {
+               logger.warning("Error subscribing client.");
+               return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error subscribing client.");
+            }
+         else {
+            logger.warning("Gateway is down.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Gateway is down.");
+         }
+      }
+      String query = requestBody.getQuery();
+      logger.info("Received query for Hacker News: " + query);
+
+      List<String> matchedStories = hackerNewsStories(query);
+      if (matchedStories == null) {
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No matching stories found.");
+      }
+
+      for (String story : matchedStories) {
+         logger.info("Matched story: " + story);
+         try {
+            gw.send(story, this);
+         } catch (RemoteException e) {
+            logger.warning("Error occurred while sending URL to the Gateway.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while sending URL to the Gateway.");
+         }
+      }
+
+      return ResponseEntity.status(HttpStatus.OK).body("Successfully sent Hacker News stories.");
+   }
+
+   private List<String> hackerNewsStories(String query) {
+      List<String> resultado = new ArrayList<>();
+
+      String topStoriesEndpoint = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
+      RestTemplate restTemplate = new RestTemplate();
+      List<Integer> topStoriesIds = restTemplate.getForObject(topStoriesEndpoint, List.class);
+
+      if (topStoriesIds == null) {
+         return null;
+      }
+
+      for (Integer storyId : topStoriesIds) {
+         String storyURL = "https://hacker-news.firebaseio.com/v0/item/" + storyId + ".json?print=pretty";
+         HackerNewsItemRecord oneStory = restTemplate.getForObject(storyURL, HackerNewsItemRecord.class);
+
+         if (oneStory != null && (query.isEmpty() || oneStory.title().contains(query))) {
+               resultado.add(oneStory.url());
+         }
+      }
+
+      return resultado;
    }
 
    /**

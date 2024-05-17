@@ -51,10 +51,15 @@
 			<button id="prevPage">Previous</button>
 			<span id="currentPage">Page 1</span>
 			<button id="nextPage">Next</button>
+		</div>
+
+		<div>
 			<button id="hackerNews">Hacker News</button>
 			<button id="advice">Random Advice</button>
 		</div>
-
+		<script th:inline="javascript">
+			var groupData = /*[[${group}]]*/ null;
+		</script>
 		<script src="/js/search.js"></script>
 	</body>
 </html>

@@ -41,9 +41,10 @@
 
 ### Run Web App (Meta 2)
 
-- Open a terminal (or multiple terminals for multiple clients).
+- Open a terminal.
 - Navigate to the primary directory (googol).
-- Run the command for each client: `make web`
+- Run the command: `make web`
+- Open your browser on `localhost:8080`
 
 ### Final considerations
 
