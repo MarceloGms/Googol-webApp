@@ -222,7 +222,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          brls.add(new BrlObj(i, 2));
       }
       model.addAttribute("barrels", brls);
-      model.addAttribute("searches", new String[] {"Search 1", "Search 2", "Search 3", "Search 4", "Search 5", "Search 6", "Search 7", "Search 8", "Search 9", "Search 10"});
+      model.addAttribute("searches", new Top10Obj[] {new Top10Obj("Search 1", 2), new Top10Obj("Search 2", 3), new Top10Obj("Search 3", 4), new Top10Obj("Search 4", 5), new Top10Obj("Search 5", 6), new Top10Obj("Search 6", 7), new Top10Obj("Search 7", 8), new Top10Obj("Search 8", 9), new Top10Obj("Search 9", 10), new Top10Obj("Search 10", 11)});
       return "admin";
    }
 
