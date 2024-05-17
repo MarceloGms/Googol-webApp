@@ -43,9 +43,9 @@ function updateSearchesTable(data) {
 	// Update table
 	data.forEach(function (search) {
 		var row = tableBody.insertRow();
-		var countCell = row.insertCell();
 		var queryCell = row.insertCell();
+		var countCell = row.insertCell();
+		queryCell.innerText = search.name;
 		countCell.innerText = search.count;
-		queryCell.innerText = search.query;
 	});
 }

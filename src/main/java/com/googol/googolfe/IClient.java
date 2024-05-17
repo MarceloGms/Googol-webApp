@@ -22,4 +22,6 @@ public interface IClient extends Remote {
    * @throws RemoteException If a communication-related exception occurs.
    */
   public void sendBrls(ArrayList<BrlObj> brls) throws RemoteException;
+
+  public void sendTop10(ArrayList<Top10Obj> top10) throws RemoteException;
 }

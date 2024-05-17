@@ -283,4 +283,13 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          logger.warning("SimpMessagingTemplate is null, unable to send barrel updates.\n");
      }
    }
+
+   @Override
+   public void sendTop10(ArrayList<Top10Obj> top10) throws RemoteException {
+      if (this.template != null) {
+         this.template.convertAndSend("/topic/searchUpdates", top10);
+     } else {
+         logger.warning("SimpMessagingTemplate is null, unable to send top 10 updates.\n");
+     }
+   }
 }

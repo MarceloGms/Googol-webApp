@@ -520,4 +520,10 @@ public class Client extends UnicastRemoteObject implements IClient {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'sendBrls'");
   }
+
+  @Override
+  public void sendTop10(ArrayList<Top10Obj> top10) throws RemoteException {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'sendTop10'");
+  }
 }

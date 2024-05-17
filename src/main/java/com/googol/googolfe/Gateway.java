@@ -188,7 +188,21 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
       return "No barrels available";
     }
     int idx = rand.nextInt(barrels.size());
-    return barrels.get(idx).search(s);
+    String result = barrels.get(idx).search(s);
+
+    /* ArrayList<Top10Obj> top10 = new ArrayList<>();
+    String stringTop10 = barrels.get(idx).getTop10Searches();
+    String[] top10Array = stringTop10.split("\n");
+    for (String top : top10Array) {
+      String[] split = top.split(" - ");
+      top10.add(new Top10Obj(split[0], Integer.parseInt(split[1])));
+    }
+
+    for (IClient c : clients) {
+      c.sendTop10(top10);
+    } */
+
+    return result;
   }
 
   /**

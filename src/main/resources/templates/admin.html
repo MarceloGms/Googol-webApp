@@ -12,6 +12,8 @@
 			crossorigin="anonymous"
 		/>
 		<link rel="stylesheet" href="/css/admin.css" />
+		<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 	</head>
 	<body>
 		<div class="center-container">
@@ -28,7 +30,7 @@
 							<tbody id="barrels-table-body">
 								<tr th:each="barrel : ${barrels}">
 									<td th:text="${barrel.id}"></td>
-									<td th:text="barrel.time"></td>
+									<td th:text="${barrel.time}"></td>
 								</tr>
 							</tbody>
 						</table>
@@ -42,9 +44,9 @@
 								</tr>
 							</thead>
 							<tbody id="searches-table-body">
-								<tr th:each="search, index : ${searches}">
-									<td th:text="${index.count}"></td>
-									<td th:text="${search}"></td>
+								<tr th:each="search : ${searches}">
+									<td th:text="${search.name}"></td>
+									<td th:text="${search.count}"></td>
 								</tr>
 							</tbody>
 						</table>
