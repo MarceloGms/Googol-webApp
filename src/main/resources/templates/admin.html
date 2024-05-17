@@ -25,7 +25,7 @@
 									<td><b>Active Barrels</b></td>
 								</tr>
 							</thead>
-							<tbody>
+							<tbody id="barrels-table-body">
 								<tr th:each="barrel : ${barrels}">
 									<td th:text="${barrel.id}"></td>
 									<td th:text="barrel.time"></td>
@@ -41,7 +41,7 @@
 									<td><b>Top 10 Searches</b></td>
 								</tr>
 							</thead>
-							<tbody>
+							<tbody id="searches-table-body">
 								<tr th:each="search, index : ${searches}">
 									<td th:text="${index.count}"></td>
 									<td th:text="${search}"></td>

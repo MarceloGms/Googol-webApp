@@ -21,6 +21,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 /**
  * The Gateway class implements the remote interfaces IGatewayCli, IGatewayDl, and IGatewayBrl.
  * It acts as an intermediary between clients, barrels, and downloaders manager in a distributed search engine system.
@@ -303,26 +306,38 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
    * @throws RemoteException if there is a remote communication error.
    */
   @Override
-  public int AddBrl(IBarrel brl) throws RemoteException {
-    synchronized (barrels) {
-      int currentId;
-      if (!availableIds.isEmpty()) { // reuse id if available
-          Iterator<Integer> iterator = availableIds.iterator();
-          currentId = iterator.next();
-          iterator.remove();
-      } else { // create new id
-          currentId = nextId++;
-      }
-      barrels.add(brl);
-      brlCount++;
-      LOGGER.info("Barrel added with ID: " + currentId + "\n");
-      ArrayList<Integer> activeBarrels = new ArrayList<>();
-      for (IBarrel b : barrels) {
-        activeBarrels.add(b.getId());
-      }
-      return currentId;
+public int AddBrl(IBarrel brl) throws RemoteException {
+    if (brl == null) {
+        LOGGER.warning("Attempted to add a null barrel.\n");
+        throw new RemoteException("Cannot add a null barrel.");
     }
-  }
+
+    synchronized (barrels) {
+        int currentId;
+        if (!availableIds.isEmpty()) { // reuse id if available
+            Iterator<Integer> iterator = availableIds.iterator();
+            currentId = iterator.next();
+            iterator.remove();
+        } else { // create new id
+            currentId = nextId++;
+        }
+        barrels.add(brl);
+        brlCount++;
+        LOGGER.info("Barrel added with ID: " + currentId + "\n");
+        
+        ArrayList<BrlObj> activeBarrels = new ArrayList<>();
+        for (IBarrel b : barrels) {
+            activeBarrels.add(new BrlObj(b.getId(), 0));
+        }
+
+        for (IClient c : clients) {
+            c.sendBrls(activeBarrels);
+        }
+
+        return currentId;
+    }
+}
+
 
   /**
    * Removes a barrel from the Gateway by removing its interface from the active barrels list.
@@ -340,6 +355,14 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
       } else {
         LOGGER.warning("Barrel not found\n");
       }
+      ArrayList<BrlObj> activeBarrels = new ArrayList<>();
+        for (IBarrel b : barrels) {
+            activeBarrels.add(new BrlObj(b.getId(), 0));
+        }
+
+        for (IClient c : clients) {
+            c.sendBrls(activeBarrels);
+        }
     }
   }
 

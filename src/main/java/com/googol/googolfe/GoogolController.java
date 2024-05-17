@@ -4,15 +4,16 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,30 +38,63 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    * The port number of the gateway RMI server.
    */
    private String SERVER_PORT;
+
+   IGatewayCli gw;
+
+   @Autowired
+   private SimpMessagingTemplate template;
+
+
    GoogolController() throws RemoteException{
       loadConfig();
       initializeLogger();
+      gw = connectToGateway();
+      if (gw != null)
+         gw.subscribe(this);
       logger.info("Googol Controller started.");
    }
 
    @GetMapping("/")
-   public String showGoogolPage() {
+   public String showGoogolPage(Model model) {
+      if (gw == null) {
+         gw = connectToGateway();
+         if (gw != null)
+            try {
+               gw.subscribe(this);
+            } catch (RemoteException e) {
+               logger.warning("Error subscribing client.");
+               model.addAttribute("error", "Error subscribing client.");
+               return "error";
+            }
+         else {
+            logger.warning("Gateway is down.");
+            model.addAttribute("error", "Gateway is down.");
+            return "error";
+         }
+      }
       return "googol";
    }
 
    @PostMapping("/sendUrl")
    public ResponseEntity<String> sendUrlToServer(@RequestBody UrlRequestBody requestBody) {
-      IGatewayCli gw = connectToGateway();
       if (gw == null) {
-         logger.warning("Gateway is down.");
-         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Gateway is down.");
+         gw = connectToGateway();
+         if (gw != null)
+            try {
+               gw.subscribe(this);
+            } catch (RemoteException e) {
+               logger.warning("Error subscribing client.");
+               return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error subscribing client.");
+            }
+         else {
+            logger.warning("Gateway is down.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while sending URL to the Gateway.");
+         }
       }
       String url = requestBody.getUrl();
       logger.info("Received URL: " + url + " sending to Gateway.");
       try {
-         gw.subscribe(this);
          gw.send(url, this);
-         gw.unsubscribe(this);
       } catch (RemoteException e) {
          logger.warning("Error occurred while sending URL to the Gateway.");
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while sending URL to the Gateway.");
@@ -70,10 +104,19 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
 
    @GetMapping("/search")
    public String showSearchPage(Model model, @RequestParam() String query) {
-      IGatewayCli gw = connectToGateway();
       if (gw == null) {
-         model.addAttribute("error", "Gateway is down.");
-         return "error";
+         gw = connectToGateway();
+         if (gw != null)
+            try {
+               gw.subscribe(this);
+            } catch (RemoteException e) {
+               model.addAttribute("error", "Error subscribing client.");
+            return "error";
+            }
+         else {
+            model.addAttribute("error", "Gateway is down.");
+            return "error";
+         }
       }
       String result = null;
       try {
@@ -123,10 +166,19 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
 
    @GetMapping("/urls")
    public String showSubUrlsPage(Model model, @RequestParam() String url) {
-      IGatewayCli gw = connectToGateway();
       if (gw == null) {
-         model.addAttribute("error", "Gateway is down.");
-         return "error";
+         gw = connectToGateway();
+         if (gw != null)
+            try {
+               gw.subscribe(this);
+            } catch (RemoteException e) {
+               model.addAttribute("error", "Error subscribing client.");
+            return "error";
+            }
+         else {
+            model.addAttribute("error", "Gateway is down.");
+            return "error";
+         }
       }
       String result = null;
       try {
@@ -155,9 +207,23 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
 
    @GetMapping("/admin")
    public String showAdminPage(Model model) {
-      List<String> brls = new ArrayList<>();
+      if (gw == null) {
+         gw = connectToGateway();
+         if (gw != null)
+            try {
+               gw.subscribe(this);
+            } catch (RemoteException e) {
+               model.addAttribute("error", "Error subscribing client.");
+            return "error";
+            }
+         else {
+            model.addAttribute("error", "Gateway is down.");
+            return "error";
+         }
+      }
+      List<BrlObj> brls = new ArrayList<>();
       for (int i = 1; i <= 7; i++) {
-         brls.add("Barrel " + i);
+         brls.add(new BrlObj(i, 2));
       }
       model.addAttribute("barrels", brls);
       model.addAttribute("searches", new String[] {"Search 1", "Search 2", "Search 3", "Search 4", "Search 5", "Search 6", "Search 7", "Search 8", "Search 9", "Search 10"});
@@ -196,16 +262,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
 
    @Override
    public void printOnClient(String s) throws RemoteException {
-      if (s.equals("Gateway shutting down.")) {
-         logger.warning("Received shutdown signal from server. Exiting program...");
-         try {
-            UnicastRemoteObject.unexportObject(this, true);
-         } catch (NoSuchObjectException e) {
-         }
-         System.exit(0);
-      } else {
-         logger.info("Received message from Gateway: " + s);
-      }
+      logger.info("Received message from Gateway: " + s);
    }
 
    /**
@@ -220,5 +277,14 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       } catch (IOException e) {
          System.err.println("Failed to configure logger: " + e.getMessage());
       }
+   }
+
+   @Override
+   public void sendBrls(ArrayList<BrlObj> activeBarrels) throws RemoteException {
+      if (this.template != null) {
+         this.template.convertAndSend("/topic/barrelUpdates", activeBarrels);
+     } else {
+         logger.warning("SimpMessagingTemplate is null, unable to send barrel updates.\n");
+     }
    }
 }

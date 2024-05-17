@@ -2,6 +2,7 @@ const results = document.querySelectorAll(".resultItem");
 const prevButton = document.getElementById("prevPage");
 const nextButton = document.getElementById("nextPage");
 const hackerNewsButton = document.getElementById("hackerNews");
+const adviceButton = document.getElementById("advice");
 const currentPageDisplay = document.getElementById("currentPage");
 const query = window.location.search.split("=")[1];
 
@@ -57,5 +58,29 @@ hackerNewsButton.addEventListener("click", () => {
 		.catch((error) => {
 			console.error("Error:", error);
 			alert("Failed access hacker news API.");
+		});
+});
+
+adviceButton.addEventListener("click", () => {
+	fetch("/advice", {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	})
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error("Network response was not ok " + response.statusText);
+			}
+			return response.text();
+		})
+		.then((advice) => {
+			alert(advice);
+		})
+		.catch((error) => {
+			console.error(
+				"There has been a problem with your fetch operation:",
+				error
+			);
 		});
 });

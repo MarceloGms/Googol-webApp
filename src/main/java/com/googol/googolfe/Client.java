@@ -8,6 +8,7 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -512,5 +513,11 @@ public class Client extends UnicastRemoteObject implements IClient {
       System.err.println(ANSI_RED + "Error occurred during client initialization." + ANSI_RESET);
       System.exit(1);
     }
+  }
+
+  @Override
+  public void sendBrls(ArrayList<BrlObj> brls) throws RemoteException {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'sendBrls'");
   }
 }
