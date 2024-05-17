@@ -217,12 +217,22 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
             return "error";
          }
       }
-      List<BrlObj> brls = new ArrayList<>();
-      for (int i = 1; i <= 7; i++) {
-         brls.add(new BrlObj(i, 2));
+      try {
+         ArrayList<BrlObj> barrels = gw.getActiveBarrels();
+         if (barrels != null)
+            model.addAttribute("barrels", barrels);
+         String stringTop10 = gw.getTop10Searches();
+         ArrayList<Top10Obj> top10 = new ArrayList<>();
+         String[] top10Array = stringTop10.split("\n");
+         for (String top : top10Array) {
+            String[] split = top.split(" - ");
+            top10.add(new Top10Obj(split[0], Integer.parseInt(split[1])));
+         }
+         model.addAttribute("searches", top10);
+      } catch (RemoteException e) {
+         model.addAttribute("error", "Error occurred while getting barrels and top 10 searches.");
+         return "error";
       }
-      model.addAttribute("barrels", brls);
-      model.addAttribute("searches", new Top10Obj[] {new Top10Obj("Search 1", 2), new Top10Obj("Search 2", 3), new Top10Obj("Search 3", 4), new Top10Obj("Search 4", 5), new Top10Obj("Search 5", 6), new Top10Obj("Search 6", 7), new Top10Obj("Search 7", 8), new Top10Obj("Search 8", 9), new Top10Obj("Search 9", 10), new Top10Obj("Search 10", 11)});
       return "admin";
    }
 

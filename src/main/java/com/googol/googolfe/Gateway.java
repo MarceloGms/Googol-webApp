@@ -190,7 +190,7 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
     int idx = rand.nextInt(barrels.size());
     String result = barrels.get(idx).search(s);
 
-    /* ArrayList<Top10Obj> top10 = new ArrayList<>();
+    ArrayList<Top10Obj> top10 = new ArrayList<>();
     String stringTop10 = barrels.get(idx).getTop10Searches();
     String[] top10Array = stringTop10.split("\n");
     for (String top : top10Array) {
@@ -200,7 +200,7 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
 
     for (IClient c : clients) {
       c.sendTop10(top10);
-    } */
+    }
 
     return result;
   }
@@ -249,14 +249,10 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
    * @throws RemoteException if there is a remote communication error.
    */
   @Override
-  public String getActiveBarrels() throws RemoteException {
-    if (brlCount == 0) {
-      LOGGER.warning("No barrels available\n");
-      return "No barrels available";
-    }
-    String activeBarrels = "";
+  public ArrayList<BrlObj> getActiveBarrels() throws RemoteException {
+    ArrayList<BrlObj> activeBarrels = new ArrayList<>();
     for (IBarrel b : barrels) {
-      activeBarrels += b.getId() + "\n";
+      activeBarrels.add(new BrlObj(b.getId(), 0));
     }
     return activeBarrels;
   }

@@ -2,6 +2,7 @@ package com.googol.googolfe;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 /**
  * This interface allows the Clients to connect to the Gateway via RMI.
@@ -57,5 +58,5 @@ public interface IGatewayCli extends Remote{
    * @return The active barrels.
    * @throws RemoteException If a communication-related exception occurs.
    */
-  public String getActiveBarrels() throws RemoteException;
+  public ArrayList<BrlObj> getActiveBarrels() throws RemoteException;
 }

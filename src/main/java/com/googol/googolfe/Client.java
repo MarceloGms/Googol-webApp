@@ -449,7 +449,8 @@ public class Client extends UnicastRemoteObject implements IClient {
    * @param sc the Scanner object for user input.
    */
   private void listActiveBarrels(Scanner sc) {
-    while (true) {
+    System.out.println(ANSI_RED + "feature no longer available on this client version. Please use the web app." + ANSI_RESET);
+    /* while (true) {
       String result = null;
       try {
         result = gw.getActiveBarrels();
@@ -484,7 +485,7 @@ public class Client extends UnicastRemoteObject implements IClient {
         System.out.println(ANSI_RED + "Error occurred while trying to get active barrels.\n" + ANSI_RESET);
         return;
       }
-    }
+    } */
   }
 
   /**

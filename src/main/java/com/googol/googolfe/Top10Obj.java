@@ -1,6 +1,6 @@
 package com.googol.googolfe;
 
-public class Top10Obj {
+public class Top10Obj implements java.io.Serializable {
    private String name;
    private int count;
 
