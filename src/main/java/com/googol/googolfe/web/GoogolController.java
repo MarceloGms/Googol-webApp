@@ -21,9 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
-
-import com.googol.googolfe.web.api.HNRequestBody;
-
 import org.springframework.ui.Model;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -35,7 +32,9 @@ import com.googol.googolfe.objects.HackerNewsItemRecord;
 import com.googol.googolfe.objects.Result;
 import com.googol.googolfe.server.interfaces.IClient;
 import com.googol.googolfe.objects.BrlObj;
+import com.googol.googolfe.objects.HNRequestBody;
 import com.googol.googolfe.objects.Top10Obj;
+import com.googol.googolfe.objects.UrlRequestBody;
 
 
 @Controller
