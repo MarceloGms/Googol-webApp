@@ -36,7 +36,10 @@ import com.googol.googolfe.objects.HNRequestBody;
 import com.googol.googolfe.objects.Top10Obj;
 import com.googol.googolfe.objects.UrlRequestBody;
 
-
+/**
+ * The GoogolController class handles the Googol web application.
+ * It provides methods for sending URLs, performing searches, fetching sub-links, and handling the Hacker News api.
+ */
 @Controller
 public class GoogolController extends UnicastRemoteObject implements IClient {
 
@@ -52,11 +55,22 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    */
    private String SERVER_PORT;
 
+   /**
+   * The remote gateway interface used for communication with the gateway.
+   */
    IGatewayCli gw;
 
+   /**
+    * The SimpMessagingTemplate object that sends messages to the WebSocket.
+    */
    @Autowired
    private SimpMessagingTemplate template;
 
+   /**
+    * Constructor for the GoogolController class.
+   * It loads the config file, initializes the logger, and connects to the gateway.
+   * @throws RemoteException
+   */
    GoogolController() throws RemoteException{
       loadConfig();
       initializeLogger();
@@ -66,8 +80,14 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       logger.info("Googol Controller started.");
    }
 
+   /**
+    * Displays the main Googol page.
+    * @param model the Spring model
+    * @return the name of the HTML template to render
+    */
    @GetMapping("/")
    public String showGoogolPage(Model model) {
+      // If the gateway is not connected, try to connect to it
       if (gw == null) {
          gw = connectToGateway();
          if (gw != null)
@@ -87,8 +107,14 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       return "googol";
    }
 
+   /**
+    * Sends a URL to the gateway for processing.
+    * @param requestBody the request body containing the URL
+    * @return ResponseEntity with status and message indicating success or failure
+    */
    @PostMapping("/sendUrl")
    public ResponseEntity<String> sendUrlToServer(@RequestBody UrlRequestBody requestBody) {
+      // If the gateway is not connected, try to connect to it
       if (gw == null) {
          gw = connectToGateway();
          if (gw != null)
@@ -114,8 +140,15 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       return ResponseEntity.status(HttpStatus.OK).body("URL received successfully");
    }
 
+   /**
+    * Displays the search page with the search results.
+    * @param model the Spring model
+    * @param query the search query
+    * @return the name of the HTML template to render
+    */
    @GetMapping("/search")
    public String showSearchPage(Model model, @RequestParam() String query) {
+      // If the gateway is not connected, try to connect to it
       if (gw == null) {
          gw = connectToGateway();
          if (gw != null)
@@ -130,6 +163,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
             return "error";
          }
       }
+      // Perform the search
       String result = null;
       try {
          result = gw.search(query);
@@ -138,6 +172,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
              logger.warning("No results found.");
              model.addAttribute("group", "No results found.");
            } else {
+               // Parse the results
                String[] parts;
                String[] new_parts = new String[3];
                String[] results = result.split("<>");
@@ -172,8 +207,15 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       return "search";
    }
 
+   /**
+    * Displays the sub-URLs page with the sub-URLs of a given URL.
+    * @param model the Spring model
+    * @param url the URL to find sub-URLs for
+    * @return the name of the HTML template to render
+    */
    @GetMapping("/urls")
    public String showSubUrlsPage(Model model, @RequestParam() String url) {
+      // If the gateway is not connected, try to connect to it
       if (gw == null) {
          gw = connectToGateway();
          if (gw != null)
@@ -188,6 +230,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
             return "error";
          }
       }
+      // Find the sub-URLs
       String result = null;
       try {
          result = gw.findSubLinks(url);
@@ -198,6 +241,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
             logger.warning("Invalid URL.");
             model.addAttribute("urls", "Invalid URL.");
          } else {
+            // Parse the results
             String[] urls = result.split("\n");
             model.addAttribute("urls", urls);
          }
@@ -213,8 +257,14 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       return "urls";
    }
 
+   /**
+    * Displays the admin page with the active barrels and top 10 searches.
+    * @param model the Spring model
+    * @return the name of the HTML template to render
+    */
    @GetMapping("/admin")
    public String showAdminPage(Model model) {
+      // If the gateway is not connected, try to connect to it
       if (gw == null) {
          gw = connectToGateway();
          if (gw != null)
@@ -229,6 +279,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
             return "error";
          }
       }
+      // Get the active barrels and top 10 searches via rmi when the admin button is clicked
       try {
          ArrayList<BrlObj> barrels = gw.getActiveBarrels();
          if (barrels != null)
@@ -248,8 +299,14 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       return "admin";
    }
 
+   /**
+    * Sends a query to the Hacker News API and sends the matching stories to the gateway.
+    * @param requestBody the request body containing the query
+    * @return ResponseEntity with status and message indicating success or failure
+    */
    @PostMapping("/sendHackerNews")
    public ResponseEntity<String> sendUrlToServer(@RequestBody HNRequestBody requestBody) {
+      // If the gateway is not connected, try to connect to it
       if (gw == null) {
          gw = connectToGateway();
          if (gw != null)
@@ -272,6 +329,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No matching stories found.");
       }
 
+      // Send the matched stories to the gateway
       for (String story : matchedStories) {
          logger.info("Matched story: " + story);
          try {
@@ -285,17 +343,24 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       return ResponseEntity.status(HttpStatus.OK).body("Successfully sent Hacker News stories.");
    }
 
+   /**
+    * Fetches the top stories from the Hacker News API and returns the URLs of the stories that match the query.
+    * @param query the query to match the stories against
+    * @return a list of URLs of the stories that match the query
+    */
    private List<String> hackerNewsStories(String query) {
       List<String> resultado = new ArrayList<>();
 
       String topStoriesEndpoint = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
       RestTemplate restTemplate = new RestTemplate();
+      // Get the top stories ids from the Hacker News API
       List<Integer> topStoriesIds = restTemplate.getForObject(topStoriesEndpoint, List.class);
 
       if (topStoriesIds == null) {
          return null;
       }
 
+      // Get the stories from the Hacker News API and verify if the query matches
       for (Integer storyId : topStoriesIds) {
          String storyURL = "https://hacker-news.firebaseio.com/v0/item/" + storyId + ".json?print=pretty";
          HackerNewsItemRecord oneStory = restTemplate.getForObject(storyURL, HackerNewsItemRecord.class);
@@ -357,6 +422,10 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
       }
    }
 
+   /**
+    * Sends the active barrels to the WebSocket.
+   * @param activeBarrels the list of active barrels
+   */
    @Override
    public void sendBrls(ArrayList<BrlObj> activeBarrels) throws RemoteException {
       if (this.template != null) {
@@ -366,6 +435,11 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
      }
    }
 
+   /**
+    * Sends the top 10 searches to the WebSocket.
+   * @param top10 the list of top 10 searches
+   * @throws RemoteException
+   */
    @Override
    public void sendTop10(ArrayList<Top10Obj> top10) throws RemoteException {
       if (this.template != null) {

@@ -360,6 +360,7 @@ public int AddBrl(IBarrel brl) throws RemoteException {
         brlCount++;
         LOGGER.info("Barrel added with ID: " + currentId + "\n");
         
+        // Get the updated list of active barrels
         ArrayList<BrlObj> activeBarrels = new ArrayList<>();
         for (IBarrel b : barrels) {
           BigDecimal bd = new BigDecimal(b.getAverageTime());
@@ -394,17 +395,18 @@ public int AddBrl(IBarrel brl) throws RemoteException {
       } else {
         LOGGER.warning("Barrel not found\n");
       }
+      // Get the updated list of active barrels
       ArrayList<BrlObj> activeBarrels = new ArrayList<>();
-        for (IBarrel b : barrels) {
-          BigDecimal bd = new BigDecimal(b.getAverageTime());
-          bd = bd.setScale(3, RoundingMode.HALF_UP);
-          double formattedAverageTime = bd.doubleValue();
-          activeBarrels.add(new BrlObj(b.getId(), formattedAverageTime));
-        }
+      for (IBarrel b : barrels) {
+        BigDecimal bd = new BigDecimal(b.getAverageTime());
+        bd = bd.setScale(3, RoundingMode.HALF_UP);
+        double formattedAverageTime = bd.doubleValue();
+        activeBarrels.add(new BrlObj(b.getId(), formattedAverageTime));
+      }
 
-        for (IClient c : clients) {
-            c.sendBrls(activeBarrels);
-        }
+      for (IClient c : clients) {
+          c.sendBrls(activeBarrels);
+      }
     }
   }
 

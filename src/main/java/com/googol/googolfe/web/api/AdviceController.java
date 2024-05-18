@@ -7,9 +7,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * The AdviceController class handles requests for random advice from an external API.
+ */
 @RestController
 public class AdviceController {
 
+    /**
+     * Retrieves a random piece of advice from an external API.
+     * @return ResponseEntity containing the random advice or an error message
+     */
     @GetMapping("/advice")
     public ResponseEntity<String> randomAdvice() {
         String adviceEndpoint = "https://api.adviceslip.com/advice";

@@ -26,5 +26,10 @@ public interface IClient extends Remote {
    */
   public void sendBrls(ArrayList<BrlObj> brls) throws RemoteException;
 
+  /**
+   * Sends the top 10 search results to the client.
+   * @param top10 The list of Top10Obj objects to send.
+   * @throws RemoteException If a communication-related exception occurs.
+   */
   public void sendTop10(ArrayList<Top10Obj> top10) throws RemoteException;
 }

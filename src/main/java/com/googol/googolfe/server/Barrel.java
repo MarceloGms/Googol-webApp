@@ -47,7 +47,13 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
      * The id of the barrel
      */
     private int id;
+    /**
+     * The total searches time of the barrel
+     */
     private long totalTime;
+    /**
+     * The count of searches of the barrel
+     */
     private int count;
     /**
     * The remote gateway interface used for communication with the gateway.

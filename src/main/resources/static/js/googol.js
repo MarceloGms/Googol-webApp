@@ -1,22 +1,27 @@
+// Wait for the DOM content to be loaded before executing the script
 document.addEventListener("DOMContentLoaded", function () {
 	const admButton = document.querySelector(".adm-button");
 	const searchButton = document.querySelector(".search-button");
 	const searchIcon = searchButton.querySelector("img");
 	const inp = document.querySelector(".input");
 	const idx = document.querySelector(".idx");
-	let state = { isSearch: true };
+	let state = { isSearch: true }; // State variable to track search mode
 
+	// Event listener for admin button click
 	admButton.addEventListener("click", function () {
+		// Redirect to admin page
 		window.location.href = "/admin";
 	});
 
+	// Function to check if a URL is valid
 	function isValidURL(url) {
 		var regex = /^(ftp|http|https):\/\/[^ "]+$/;
-
 		return regex.test(url);
 	}
 
+	// Event listener for search button click
 	searchButton.addEventListener("click", function () {
+		// Toggle between search and URL mode
 		if (searchIcon.src.endsWith("/img/search.png")) {
 			searchIcon.src = "/img/url.png";
 			inp.placeholder = "Enter URL...";
@@ -29,26 +34,33 @@ document.addEventListener("DOMContentLoaded", function () {
 		searchButton.classList.toggle("clicked");
 	});
 
+	// Function to handle search
 	function handleSearch() {
 		const inputValue = inp.value.trim();
 		if (inputValue !== "") {
 			if (state.isSearch) {
+				// Redirect to search page
 				window.location.href = "/search?query=" + inputValue;
 			} else {
 				if (!isValidURL(inputValue)) {
 					alert("Invalid URL");
-				} else window.location.href = "/urls?url=" + inputValue;
+				} else {
+					// Redirect to URLs page
+					window.location.href = "/urls?url=" + inputValue;
+				}
 			}
 		}
 	}
 
+	// Event listener for Enter key press on search input
 	inp.addEventListener("keypress", function (event) {
 		if (event.key === "Enter") {
 			handleSearch();
 		}
 	});
 
-	idx.addEventListener("keypress", function () {
+	// Event listener for Enter key press on URL input
+	idx.addEventListener("keypress", function (event) {
 		if (event.key === "Enter") {
 			const idxValue = idx.value.trim();
 			if (!isValidURL(idxValue)) {

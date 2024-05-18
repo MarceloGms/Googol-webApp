@@ -1,9 +1,13 @@
 package com.googol.googolfe.objects;
 
+/**
+ * The Result class represents a search result with a title, citation, and URL.
+ */
 public class Result {
   private String title;
   private String url;
   private String citation;
+
 
   public Result(String title, String citation, String url) {
     this.title = title;

@@ -1,3 +1,4 @@
+// Execute when the DOM content is loaded
 document.addEventListener("DOMContentLoaded", () => {
 	const results = document.querySelectorAll(".resultItem");
 	const prevButton = document.getElementById("prevPage");
@@ -7,7 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	const currentPageDisplay = document.getElementById("currentPage");
 	const query = window.location.search.split("=")[1];
 
+	// Initialize current page
 	let currentPage = 1;
+
+	// Check if there are results available
 	if (
 		groupData !== null &&
 		groupData !== "No results found." &&
@@ -17,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		const resultsPerPage = 10;
 		const totalPages = Math.ceil(results.length / resultsPerPage);
 
+		// Function to display a page of results
 		function showPage(page) {
 			for (let i = 0; i < results.length; i++) {
 				results[i].style.display = "none";
@@ -29,8 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			currentPageDisplay.textContent = `Page ${page}`;
 		}
 
+		// Show the initial page
 		showPage(currentPage);
 
+		// Event listener for previous page button
 		prevButton.addEventListener("click", () => {
 			if (currentPage > 1) {
 				currentPage--;
@@ -38,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			}
 		});
 
+		// Event listener for next page button
 		nextButton.addEventListener("click", () => {
 			if (currentPage < totalPages) {
 				currentPage++;
@@ -46,7 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	}
 
+	// Event listener for Hacker News button click
 	hackerNewsButton.addEventListener("click", () => {
+		// Send query to server to fetch Hacker News stories
 		fetch("/sendHackerNews", {
 			method: "POST",
 			headers: {
@@ -71,7 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 	});
 
+	// Event listener for Advice button click
 	adviceButton.addEventListener("click", () => {
+		// Fetch random advice from server
 		fetch("/advice", {
 			method: "GET",
 			headers: {
