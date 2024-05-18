@@ -177,6 +177,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
                String[] new_parts = new String[3];
                String[] results = result.split("<>");
                if (results.length != 0){
+                  try {
                   Result[] res = new Result[results.length];
                   for (int i = 0; i < results.length; i++) {
                      parts = results[i].split("\n");
@@ -193,6 +194,10 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
                   }
             
                   model.addAttribute("group", res);
+               } catch (ArrayIndexOutOfBoundsException e) {
+                  logger.warning("Error parsing search results.");
+                  model.addAttribute("group", "No results found.");
+               }
                }
            }
          } else {
