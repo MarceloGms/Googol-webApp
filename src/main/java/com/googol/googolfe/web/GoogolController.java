@@ -305,7 +305,7 @@ public class GoogolController extends UnicastRemoteObject implements IClient {
    }
 
    /**
-    * Sends a query to the Hacker News API and sends the matching stories to the gateway.
+    * Receives a query and sends the matching stories to the gateway.
     * @param requestBody the request body containing the query
     * @return ResponseEntity with status and message indicating success or failure
     */
