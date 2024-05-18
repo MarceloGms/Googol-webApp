@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.web.websockets;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

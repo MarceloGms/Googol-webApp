@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.objects;
 
 public class BrlObj implements java.io.Serializable {
    int id;

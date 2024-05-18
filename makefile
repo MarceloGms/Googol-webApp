@@ -4,19 +4,19 @@ compile:
 
 # run client
 cli:
-	@./mvnw exec:java -Dexec.mainClass=com.googol.googolfe.Client
+	@./mvnw exec:java -Dexec.mainClass=com.googol.googolfe.server.Client
 
 # run gateway
 gw:
-	@./mvnw exec:java -Dexec.mainClass=com.googol.googolfe.Gateway
+	@./mvnw exec:java -Dexec.mainClass=com.googol.googolfe.server.Gateway
 
 # run barrels
 brl:
-	@./mvnw exec:java -Dexec.mainClass=com.googol.googolfe.Barrel
+	@./mvnw exec:java -Dexec.mainClass=com.googol.googolfe.server.Barrel
 
 # run downloaders
 dl:
-	@./mvnw exec:java -Dexec.mainClass=com.googol.googolfe.Downloader
+	@./mvnw exec:java -Dexec.mainClass=com.googol.googolfe.server.Downloader
 
 # run web app
 web:

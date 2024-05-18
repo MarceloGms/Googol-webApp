@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.web;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,16 +21,27 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+
+import com.googol.googolfe.web.api.HNRequestBody;
+
 import org.springframework.ui.Model;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import com.googol.googolfe.server.interfaces.IGatewayCli;
+import com.googol.googolfe.objects.HackerNewsItemRecord;
+import com.googol.googolfe.objects.Result;
+import com.googol.googolfe.server.interfaces.IClient;
+import com.googol.googolfe.objects.BrlObj;
+import com.googol.googolfe.objects.Top10Obj;
+
+
 @Controller
 public class GoogolController extends UnicastRemoteObject implements IClient {
 
-   private static final Logger logger = Logger.getLogger(Gateway.class.getName());
+   private static final Logger logger = Logger.getLogger(GoogolController.class.getName());
 
    /**
    * The IP address of the gateway RMI server.

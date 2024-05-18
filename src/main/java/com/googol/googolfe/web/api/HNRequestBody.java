@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.web.api;
 
 public class HNRequestBody {
    private String query;

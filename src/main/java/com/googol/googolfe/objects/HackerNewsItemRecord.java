@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.objects;
 
 import java.util.List;
 

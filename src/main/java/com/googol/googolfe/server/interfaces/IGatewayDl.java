@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.server.interfaces;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

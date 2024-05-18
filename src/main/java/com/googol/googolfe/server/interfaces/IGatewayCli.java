@@ -1,8 +1,10 @@
-package com.googol.googolfe;
+package com.googol.googolfe.server.interfaces;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+
+import com.googol.googolfe.objects.BrlObj;
 
 /**
  * This interface allows the Clients to connect to the Gateway via RMI.

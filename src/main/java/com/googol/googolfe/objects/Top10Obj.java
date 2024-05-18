@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.objects;
 
 public class Top10Obj implements java.io.Serializable {
    private String name;

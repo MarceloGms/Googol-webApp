@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.server;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,6 +32,9 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.text.Normalizer;
+
+import com.googol.googolfe.server.interfaces.IDownloader;
+import com.googol.googolfe.server.interfaces.IGatewayDl;
 
 /**
  * The Downloader class implements the IDownloader interface and is responsible for downloading

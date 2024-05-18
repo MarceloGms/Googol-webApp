@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.server;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,6 +13,11 @@ import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
+
+import com.googol.googolfe.objects.BrlObj;
+import com.googol.googolfe.objects.Top10Obj;
+import com.googol.googolfe.server.interfaces.IClient;
+import com.googol.googolfe.server.interfaces.IGatewayCli;
 
 /**
  * The Client class represents a client application for interacting with the Googol Search Engine Gateway.

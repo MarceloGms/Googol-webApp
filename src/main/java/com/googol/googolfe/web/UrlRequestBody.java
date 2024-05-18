@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.web;
 
 public class UrlRequestBody {
   private String url;

@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.server;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import com.googol.googolfe.server.interfaces.IBarrel;
+import com.googol.googolfe.server.interfaces.IGatewayBrl;
 
 /**
  * The Barrel Class implements the interface IBarrel

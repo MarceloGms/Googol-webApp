@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.objects;
 
 public class Result {
   private String title;

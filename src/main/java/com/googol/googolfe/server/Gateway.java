@@ -1,4 +1,4 @@
-package com.googol.googolfe;
+package com.googol.googolfe.server;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,8 +21,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.googol.googolfe.server.interfaces.IGatewayBrl;
+import com.googol.googolfe.server.interfaces.IGatewayCli;
+import com.googol.googolfe.server.interfaces.IGatewayDl;
+import com.googol.googolfe.server.interfaces.IClient;
+import com.googol.googolfe.objects.BrlObj;
+import com.googol.googolfe.objects.Top10Obj;
+import com.googol.googolfe.server.interfaces.IBarrel;
+import com.googol.googolfe.server.interfaces.IDownloader;
 
 /**
  * The Gateway class implements the remote interfaces IGatewayCli, IGatewayDl, and IGatewayBrl.
