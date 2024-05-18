@@ -30,6 +30,9 @@ import com.googol.googolfe.objects.Top10Obj;
 import com.googol.googolfe.server.interfaces.IBarrel;
 import com.googol.googolfe.server.interfaces.IDownloader;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * The Gateway class implements the remote interfaces IGatewayCli, IGatewayDl, and IGatewayBrl.
  * It acts as an intermediary between clients, barrels, and downloaders manager in a distributed search engine system.
@@ -182,6 +185,7 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
 
   /**
    * Gets the search results by choosing a random barrel to perform the search operation.
+   * Updates the top 10 searches and the average time of the barrels.
    * @param s the query string to search for.
    * @return the search results to the client. Returns "No barrels available" if there are no barrels available.
    * @throws RemoteException if there is a remote communication error.
@@ -196,6 +200,7 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
     int idx = rand.nextInt(barrels.size());
     String result = barrels.get(idx).search(s);
 
+    // Update top 10 searches
     ArrayList<Top10Obj> top10 = new ArrayList<>();
     String stringTop10 = barrels.get(idx).getTop10Searches();
     String[] top10Array = stringTop10.split("\n");
@@ -204,8 +209,18 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
       top10.add(new Top10Obj(split[0], Integer.parseInt(split[1])));
     }
 
+    // Update barrels average time
+    ArrayList<BrlObj> activeBarrels = new ArrayList<>();
+    for (IBarrel b : barrels) {
+      BigDecimal bd = new BigDecimal(b.getAverageTime());
+      bd = bd.setScale(3, RoundingMode.HALF_UP);
+      double formattedAverageTime = bd.doubleValue();
+      activeBarrels.add(new BrlObj(b.getId(), formattedAverageTime));
+    }
+
     for (IClient c : clients) {
       c.sendTop10(top10);
+      c.sendBrls(activeBarrels);
     }
 
     return result;
@@ -250,15 +265,18 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
   }
 
   /**
-   * Gets the active barrels by returning the IDs of the active barrels.
-   * @return the IDs of the active barrels to the client. Returns "No barrels available" if there are no barrels available.
+   * Gets the ids and average time of the active barrels.
+   * @return the ids and average time of the active barrels to the clients.
    * @throws RemoteException if there is a remote communication error.
    */
   @Override
   public ArrayList<BrlObj> getActiveBarrels() throws RemoteException {
     ArrayList<BrlObj> activeBarrels = new ArrayList<>();
     for (IBarrel b : barrels) {
-      activeBarrels.add(new BrlObj(b.getId(), 0));
+      BigDecimal bd = new BigDecimal(b.getAverageTime());
+      bd = bd.setScale(3, RoundingMode.HALF_UP);
+      double formattedAverageTime = bd.doubleValue();
+      activeBarrels.add(new BrlObj(b.getId(), formattedAverageTime));
     }
     return activeBarrels;
   }
@@ -317,6 +335,7 @@ public class Gateway extends UnicastRemoteObject implements IGatewayCli, IGatewa
 
   /**
    * Adds a barrel to the Gateway by adding its iterface to the active barrels list.
+   * Updates the average time of the barrels and sends the updated list to the clients.
    * @param brl the interface of the barrel to add.
    * @return the ID of the barrel added.
    * @throws RemoteException if there is a remote communication error.
@@ -343,7 +362,10 @@ public int AddBrl(IBarrel brl) throws RemoteException {
         
         ArrayList<BrlObj> activeBarrels = new ArrayList<>();
         for (IBarrel b : barrels) {
-            activeBarrels.add(new BrlObj(b.getId(), 0));
+          BigDecimal bd = new BigDecimal(b.getAverageTime());
+          bd = bd.setScale(3, RoundingMode.HALF_UP);
+          double formattedAverageTime = bd.doubleValue();
+          activeBarrels.add(new BrlObj(b.getId(), formattedAverageTime));
         }
 
         for (IClient c : clients) {
@@ -357,6 +379,7 @@ public int AddBrl(IBarrel brl) throws RemoteException {
 
   /**
    * Removes a barrel from the Gateway by removing its interface from the active barrels list.
+   * Updates the average time of the barrels and sends the updated list to the clients.
    * @param brl the interface of the barrel to remove.
    * @param id the ID of the barrel to remove.
    * @throws RemoteException if there is a remote communication error.
@@ -373,7 +396,10 @@ public int AddBrl(IBarrel brl) throws RemoteException {
       }
       ArrayList<BrlObj> activeBarrels = new ArrayList<>();
         for (IBarrel b : barrels) {
-            activeBarrels.add(new BrlObj(b.getId(), 0));
+          BigDecimal bd = new BigDecimal(b.getAverageTime());
+          bd = bd.setScale(3, RoundingMode.HALF_UP);
+          double formattedAverageTime = bd.doubleValue();
+          activeBarrels.add(new BrlObj(b.getId(), formattedAverageTime));
         }
 
         for (IClient c : clients) {

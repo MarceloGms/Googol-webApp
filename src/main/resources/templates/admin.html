@@ -30,7 +30,7 @@
 							<tbody id="barrels-table-body">
 								<tr th:each="barrel : ${barrels}">
 									<td th:text="${barrel.id}"></td>
-									<td th:text="${barrel.time}"></td>
+									<td th:text="${barrel.time + ' ms'}"></td>
 								</tr>
 							</tbody>
 						</table>

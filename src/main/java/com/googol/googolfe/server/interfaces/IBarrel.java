@@ -45,4 +45,11 @@ public interface IBarrel extends Remote {
    * @throws RemoteException If a communication-related exception occurs.
    */
   public int getId() throws RemoteException;
+
+  /**
+   * Retrieves the average time taken to perform a search in the indexed data stored in the Barrel.
+   * @return The average time taken to perform a search.
+   * @throws RemoteException If a communication-related exception occurs.
+   */
+  public double getAverageTime() throws RemoteException;
 }

@@ -31,7 +31,7 @@ function updateBarrelsTable(data) {
 		var idCell = row.insertCell();
 		var timeCell = row.insertCell();
 		idCell.innerText = barrel.id;
-		timeCell.innerText = barrel.time;
+		timeCell.innerText = barrel.time + " ms";
 	});
 }
 

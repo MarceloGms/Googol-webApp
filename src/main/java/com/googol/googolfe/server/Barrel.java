@@ -34,6 +34,9 @@ import java.util.Set;
 import com.googol.googolfe.server.interfaces.IBarrel;
 import com.googol.googolfe.server.interfaces.IGatewayBrl;
 
+import java.time.Duration;
+import java.time.Instant;
+
 /**
  * The Barrel Class implements the interface IBarrel
  * It is responsible for storing all the information, such as, the inverted index, the linked pages and the top 10 searches
@@ -44,6 +47,8 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
      * The id of the barrel
      */
     private int id;
+    private long totalTime;
+    private int count;
     /**
     * The remote gateway interface used for communication with the gateway.
     */
@@ -107,6 +112,8 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
         linkedPage = new HashMap<>();
         title_citation = new HashMap<>();
         stopWords = new HashSet<>();
+        this.totalTime = 0;
+        this.count = 0;
         // Load stop words from file
         loadStopWords("assets/stop_words.txt");
         // Create the multicast socket
@@ -146,6 +153,7 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
      */
     @Override
     public String search(String s) throws RemoteException {
+        Instant start = Instant.now();
         String sep_words_aux[] = s.split(" ");
         ArrayList<String> sep_words = new ArrayList<>();
         // Remove punctuation from words and add to sep_words
@@ -222,6 +230,12 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
             }
             string_links += link + "\n<>";
         }
+        Instant end = Instant.now();
+        Duration timeElapsed = Duration.between(start, end);
+        long timeElapsedNanos = timeElapsed.toNanos();
+
+        totalTime += timeElapsedNanos;
+        count++;
         return string_links;
     }
 
@@ -270,6 +284,17 @@ public class Barrel extends UnicastRemoteObject implements IBarrel, Runnable {
     @Override
     public int getId() throws RemoteException {
         return id;
+    }
+
+    /**
+     * The getAverageTime method is used to get the average time of the barrel.
+     */
+    @Override
+    public double getAverageTime() throws RemoteException {
+        if (count == 0) {
+            return 0;
+        }
+        return (totalTime / 1_000_000.0) / count;
     }
 
     /**
